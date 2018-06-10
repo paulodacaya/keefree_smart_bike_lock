@@ -1,0 +1,33 @@
+<resources>
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyBp7xQlcrHSK61tVE4SC4oOli0YR1IbJF8</string>
+
+    <string name="app_name">KeeFree</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="wrong_pin_warning_message">Sorry, wrong pin code, please try again.</string>
+    <string name="request_pin_message">Please enter your pin code</string>
+
+    <string name="bottom_nav_title_keefree">KEEFREE</string>
+    <string name="bottom_nav_title_location">Location</string>
+    <string name="bottom_nav_title_activity">Activity</string>
+    <string name="bottom_nav_title_settings">Setting</string>
+
+    <string name="actionbar_title_keefree">KEEFREE</string>
+    <string name="actionbar_title_location">LOCATION</string>
+    <string name="actionbar_title_activity">ACTIVITY</string>
+    <string name="actionbar_title_settings">SETTINGS</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="how_to_unlock_and_lock_message">
+        <![CDATA[To unlock or lock your KEEFREE smart bike lock\n
+        press and hold on the lock icon.]]>
+    </string>
+
+    <string name="wifi_connected">CONNECTED</string>
+    <string name="wifi_low_connected">LOW CONNECTION</string>
+    <string name="wifi_not_connected">NOT CONNECTED</string>
+    <string name="title_activity_settings">Settings</string>
+
+
+
+
+</resources>
