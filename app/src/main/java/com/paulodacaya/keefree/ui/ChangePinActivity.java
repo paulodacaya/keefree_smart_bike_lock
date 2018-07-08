@@ -133,7 +133,7 @@ public class ChangePinActivity extends AppCompatActivity {
         
         if( !isChangingPassword ) {
           
-          /** Validating stored password */
+          /** Validating with stored password */
           
           inputPinCode = getInputPinCode();
           storedPinCode = Utilities.getSharedPreferencePinCode( ChangePinActivity.this );
@@ -167,9 +167,9 @@ public class ChangePinActivity extends AppCompatActivity {
             inputPinCode = getInputPinCode();
             
             isReenteringNewPassword = true;
-            
-            mChangePinCode1.requestFocus();
             clearPinCodeFields();
+            mChangePinCode1.requestFocus();
+            
           } else {
             
             /** Activate confirm button to finalise */
@@ -194,6 +194,7 @@ public class ChangePinActivity extends AppCompatActivity {
     mConfirmButton.setAlpha( 0.1f );
     isReenteringNewPassword = false;
     isChangingPassword = false;
+    isConfirmButtonActive = false;
   }
   
   private String getInputPinCode() {
@@ -239,6 +240,7 @@ public class ChangePinActivity extends AppCompatActivity {
       } else {
         
         resetPinCodeFields();
+        isChangingPassword = true;
         mPromptLabel.setText( R.string.try_again_prompt );
         
       }
