@@ -21,6 +21,7 @@ public class LoginActivity extends AppCompatActivity {
   
   @BindView( R.id.pinCodeLabel ) TextView mPinCodeLabel;
   @BindView( R.id.changePinCodeLabel ) TextView mChangePinCodeLabel;
+  @BindView( R.id.clearPinCodeLabel ) TextView mClearPinCodeLabel;
   @BindView( R.id.pinCode1 ) EditText mPinCode1;
   @BindView( R.id.pinCode2 ) EditText mPinCode2;
   @BindView( R.id.pinCode3 ) EditText mPinCode3;
@@ -150,6 +151,12 @@ public class LoginActivity extends AppCompatActivity {
     
 //    Fade fade = new Fade();
 //    getWindow().setEnterTransition( fade );
+  }
+  
+  @OnClick( R.id.clearPinCodeLabel )
+  public void onClearPinCodeLabelClick() {
+    clearPinCodeFields();
+    mPinCode1.requestFocus();
   }
   
   @OnClick( R.id.changePinCodeLabel )
