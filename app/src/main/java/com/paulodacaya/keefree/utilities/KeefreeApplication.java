@@ -12,48 +12,48 @@ import android.os.Bundle;
  */
 
 public class KeefreeApplication extends Application {
-
+  
   @Override
   public void onCreate() {
     super.onCreate();
-
-    registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+    
+    registerActivityLifecycleCallbacks( new ActivityLifecycleCallbacks() {
       @Override
-      public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-
+      public void onActivityCreated( Activity activity, Bundle savedInstanceState ) {
+        
         // this get called every time an activity is created, it forces portrait orientation ONLY.
         activity.setRequestedOrientation( ActivityInfo.SCREEN_ORIENTATION_PORTRAIT );
       }
-
+      
       @Override
-      public void onActivityStarted(Activity activity) {
-
+      public void onActivityStarted( Activity activity ) {
+      
       }
-
+      
       @Override
-      public void onActivityResumed(Activity activity) {
-
+      public void onActivityResumed( Activity activity ) {
+      
       }
-
+      
       @Override
-      public void onActivityPaused(Activity activity) {
-
+      public void onActivityPaused( Activity activity ) {
+      
       }
-
+      
       @Override
-      public void onActivityStopped(Activity activity) {
-
+      public void onActivityStopped( Activity activity ) {
+      
       }
-
+      
       @Override
-      public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-
+      public void onActivitySaveInstanceState( Activity activity, Bundle outState ) {
+      
       }
-
+      
       @Override
-      public void onActivityDestroyed(Activity activity) {
-
+      public void onActivityDestroyed( Activity activity ) {
+      
       }
-    });
+    } );
   }
 }
