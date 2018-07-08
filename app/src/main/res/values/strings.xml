@@ -4,6 +4,8 @@
     <string name="app_name">KeeFree</string>
     <string name="title_activity_main">MainActivity</string>
 
+    <string name="change_pin_code">Change pin code</string>
+
     <string name="wrong_pin_warning_message">Sorry, wrong pin code, please try again.</string>
     <string name="request_pin_message">Please enter your pin code</string>
 
@@ -26,8 +28,16 @@
     <string name="wifi_low_connected">LOW CONNECTION</string>
     <string name="wifi_not_connected">NOT CONNECTED</string>
     <string name="title_activity_settings">Settings</string>
-
-
+    <string name="logo_transition_name">logoTransition</string>
+    <string name="enter_previous_passcode_prompt">Enter previous pin code</string>
+    <string name="clear_prompt">Clear</string>
+    <string name="confirm_prompt">Confirm</string>
+    <string name="successful_pin_code_prompt">SUCCESS! Please enter NEW pin code.</string>
+    <string name="reenter_pin_code_prompt">RE-ENTER pin code. Press \"Confirm\" to finalise.</string>
+    <string name="successful_pin_code_change_prompt">
+        PIN CODE HAS BEEN SUCCESSFULLY CHANGED\nTo change again: Enter previous pin code.
+    </string>
+    <string name="try_again_prompt">Try again, Please enter NEW pin code.</string>
 
 
 </resources>

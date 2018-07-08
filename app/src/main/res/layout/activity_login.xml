@@ -1,33 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/loginActivityConstraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.LoginActivity">
+    android:background="@color/colorWhite"
+    tools:context=".ui.LoginActivity" >
 
     <ImageView
-        android:id="@+id/keefreeLogoImage"
+        android:id="@+id/keefreeLogoLettersImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.25"
-        app:srcCompat="@drawable/keefree_logo" />
+        app:layout_constraintVertical_bias="0.23"
+        android:transitionName="@string/logo_transition_name"
+        app:srcCompat="@drawable/keefree_logo_letters" />
 
     <TextView
         android:id="@+id/pinCodeLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:fontFamily="@font/alegreya_sans_bold"
         android:text="@string/request_pin_message"
         android:textSize="16sp"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/keefreeLogoImage" />
+        app:layout_constraintTop_toBottomOf="@+id/keefreeLogoLettersImage" />
+
+    <TextView
+        android:id="@+id/changePinCodeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_rounded_blue"
+        android:fontFamily="@font/alegreya_sans_bold"
+        android:text="@string/change_pin_code"
+        android:textAllCaps="false"
+        android:textColor="@color/colorWhite"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pinCodeLabel" />
 
     <LinearLayout
         android:id="@+id/pinCodeContainer"
@@ -35,12 +55,12 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.6"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pinCodeLabel">
+        app:layout_constraintTop_toBottomOf="@+id/changePinCodeLabel">
 
         <EditText
             android:id="@+id/pinCode1"

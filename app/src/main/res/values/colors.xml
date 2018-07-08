@@ -8,6 +8,8 @@
     <!-- DARK BLUE:     #264658 -->
     <!-- BLACK:         #000f16 -->
     <!-- WARNING RED:   #ba4547 -->
+    <!-- SUCCESS RED:   #476747 -->
+
 
     <color name="colorPrimary">#03357e</color>
     <color name="colorPrimaryDark">#03357e</color>
@@ -15,5 +17,6 @@
     <color name="colorAccentDark">#264658</color>
     <color name="colorBlack">#000f16</color>
     <color name="colorWarningRed">#ba4547</color>
-    <color name="colorWhite">#fff</color>
+    <color name="colorSuccessGreen">#476747</color>
+    <color name="colorWhite">#ffffff</color>
 </resources>
