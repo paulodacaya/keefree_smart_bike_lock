@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <Preference
+        android:key="@string/pref_key_pin_code"
+        android:defaultValue="@string/pref_default_pin_code"
+        android:title="@string/pref_title_pin_code"
+        android:summary="@string/pref_summary_pin_code" >
+        <intent
+            android:targetPackage="com.paulodacaya.keefree"
+            android:targetClass="com.paulodacaya.keefree.ui.ChangePinActivity"/>
+    </Preference>
+
+    <Preference
+        android:key="@string/pref_key_phoneless_pin_code"
+        android:defaultValue="@string/pref_default_phoneless_pin_code"
+        android:title="@string/pref_title_phoneless_access_code"
+        android:summary="@string/pref_summary_phoneless_access_code" >
+    </Preference>
+
+</PreferenceScreen>

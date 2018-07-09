@@ -9,6 +9,22 @@
     tools:context=".ui.MainActivity">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/settingsContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@id/bottomNavigation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <fragment
+            android:name="com.paulodacaya.keefree.ui.fragments.SettingsFragment"
+            android:id="@+id/settingsFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/mapContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -27,7 +43,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:context=".ui.MainActivity" />
-
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
@@ -128,4 +143,5 @@
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/navigation" >
     </android.support.design.widget.BottomNavigationView>
+
 </android.support.constraint.ConstraintLayout>
