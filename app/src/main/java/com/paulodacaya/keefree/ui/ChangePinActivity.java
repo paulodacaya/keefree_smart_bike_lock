@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -52,9 +54,13 @@ public class ChangePinActivity extends AppCompatActivity {
     super.onCreate( savedInstanceState );
     setContentView( R.layout.activity_change_pin );
     ButterKnife.bind( this );
+  
+    // Set shared preferences default values
+    PreferenceManager.setDefaultValues( this, R.xml.preference, false );
     
     setupTransitions();
     handlePinCode();
+    setActionBar();
   }
   
   private void handlePinCode() {
@@ -225,7 +231,7 @@ public class ChangePinActivity extends AppCompatActivity {
       
       if( inputPinCode.equals( reEnteredPinCode ) ) {
         
-        savePinCode( reEnteredPinCode ); // Save to shared preferences
+        Utilities.setSharedPreferencePinCode( this, reEnteredPinCode ); // Save to shared preferences
         
         Toast.makeText( ChangePinActivity.this,
                 "PIN CODE HAS BEEN CHANGED", Toast.LENGTH_SHORT )
@@ -247,17 +253,9 @@ public class ChangePinActivity extends AppCompatActivity {
     }
   }
   
-  private void savePinCode( String newPinCode ) {
-    SharedPreferences sharedPreferences = this.getSharedPreferences(
-            Constants.SETTINGS_SHARED_PREFERENCES, Context.MODE_PRIVATE );
-            
-    SharedPreferences.Editor editor = sharedPreferences.edit();
-    editor.putString( Constants.PIN_CODE, newPinCode ).apply();
-  }
-  
   private void hideKeyboard() {
     
-    InputMethodManager imm = (InputMethodManager) this.getSystemService( this.INPUT_METHOD_SERVICE );
+    InputMethodManager imm = (InputMethodManager) this.getSystemService( INPUT_METHOD_SERVICE );
     
     //Find the currently focused view, so we can grab the correct window token from it.
     View view = this.getCurrentFocus();
@@ -266,7 +264,17 @@ public class ChangePinActivity extends AppCompatActivity {
     if( view == null ) {
       view = new View( this );
     }
-    
-    imm.hideSoftInputFromWindow( view.getWindowToken(), 0 );
+  
+    if( imm != null )
+      imm.hideSoftInputFromWindow( view.getWindowToken(), 0 );
+  }
+  
+  private void setActionBar() {
+    getSupportActionBar().setDisplayOptions( ActionBar.DISPLAY_SHOW_CUSTOM );
+    getSupportActionBar().setCustomView( R.layout.custom_actionbar_layout );
+  
+    View view = getSupportActionBar().getCustomView();
+    TextView titleTextView = view.findViewById( R.id.actionBarText );
+    titleTextView.setText( this.getString( R.string.title_activity_settings ) );
   }
 }

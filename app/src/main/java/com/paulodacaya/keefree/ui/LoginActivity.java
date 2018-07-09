@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.Fade;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -20,7 +21,6 @@ import butterknife.OnClick;
 public class LoginActivity extends AppCompatActivity {
   
   @BindView( R.id.pinCodeLabel ) TextView mPinCodeLabel;
-  @BindView( R.id.changePinCodeLabel ) TextView mChangePinCodeLabel;
   @BindView( R.id.clearPinCodeLabel ) TextView mClearPinCodeLabel;
   @BindView( R.id.pinCode1 ) EditText mPinCode1;
   @BindView( R.id.pinCode2 ) EditText mPinCode2;
@@ -37,6 +37,12 @@ public class LoginActivity extends AppCompatActivity {
     
     handlePinCode();
     setupTransitions();
+  }
+  
+  @Override
+  protected void onStop() {
+    super.onStop();
+    finish(); // prevent flash on transition
   }
   
   private void handlePinCode() {
@@ -121,9 +127,12 @@ public class LoginActivity extends AppCompatActivity {
         String storedPinCode = Utilities.getSharedPreferencePinCode( LoginActivity.this );
         
         if( inputPinCode.equals( storedPinCode ) ) {
+          
           Intent intent = new Intent( LoginActivity.this, MainActivity.class );
-          startActivity( intent );
-          finish();
+          ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation( LoginActivity.this );
+  
+          startActivity( intent, options.toBundle() );
+          
         } else {
           mPinCodeLabel.setText( R.string.wrong_pin_warning_message );
           mPinCodeLabel.setTextColor( warningRed );
@@ -134,12 +143,6 @@ public class LoginActivity extends AppCompatActivity {
     } );
   }
   
-  // TODO: Handle reset when user taps/clicks on one edit texts
-  private void resetEditTextFields() {
-    clearPinCodeFields();
-    mPinCode1.requestFocus();
-  }
-  
   private void clearPinCodeFields() {
     mPinCode1.getText().clear();
     mPinCode2.getText().clear();
@@ -148,22 +151,12 @@ public class LoginActivity extends AppCompatActivity {
   }
   
   private void setupTransitions() {
-    
-//    Fade fade = new Fade();
-//    getWindow().setEnterTransition( fade );
+    getWindow().setExitTransition( null );
   }
   
   @OnClick( R.id.clearPinCodeLabel )
   public void onClearPinCodeLabelClick() {
     clearPinCodeFields();
     mPinCode1.requestFocus();
-  }
-  
-  @OnClick( R.id.changePinCodeLabel )
-  public void onChangePinCodeLabelClick() {
-    Intent intent = new Intent( LoginActivity.this, ChangePinActivity.class );
-    ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation( this );
-    
-    startActivity( intent, options.toBundle() );
   }
 }

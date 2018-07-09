@@ -2,11 +2,14 @@ package com.paulodacaya.keefree.ui;
 
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.Slide;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -29,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
   @BindView( R.id.bottomNavigation ) BottomNavigationView mBottomNavigationView;
   @BindView( R.id.mapContainer ) ConstraintLayout mMapContainer;
   @BindView( R.id.keefreeContainer ) ConstraintLayout mKeefeeContainer;
+  @BindView( R.id.settingsContainer ) ConstraintLayout mSettingsContainer;
   @BindView( R.id.lockedStateImage ) ImageView mLockedStateImage;
   @BindView( R.id.unlockedStateImage ) ImageView mUnlockedStateImage;
   
@@ -39,11 +43,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     
     @Override
     public boolean onNavigationItemSelected( @NonNull MenuItem item ) {
+  
+      // toggle content depending on selected bottom navigation
       toggleContent( item.getItemId() );
       
       switch( item.getItemId() ) {
         case R.id.bottom_navigation_activity:
-          
           return true;
         
         case R.id.bottom_navigation_location:
@@ -65,23 +70,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     super.onCreate( savedInstanceState );
     setContentView( R.layout.activity_main );
     ButterKnife.bind( this );
+  
+    setActionBar();
+    setupTransitions();
     
-    /** GOOGLE MAPS */
-    // Obtain the SupportMapFragment and get notified when the map is ready to be used
+    // GOOGLE MAPS
     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById( R.id.map );
     mapFragment.getMapAsync( this );
     
-    /** set ACTION BAR */
-    // TODO: fix actionbar binding (ugly code)
-    getSupportActionBar().setDisplayOptions( ActionBar.DISPLAY_SHOW_CUSTOM );
-    getSupportActionBar().setCustomView( R.layout.custom_actionbar_layout );
-    
-    /** set BOTTOM NAVIGATION  */
+    // BOTTOM NAVIGATION
     mBottomNavigationView.setOnNavigationItemSelectedListener( mOnNavigationItemSelectedListener );
     toggleContent( R.id.bottom_navigation_keefree );
     
-    // TODO: REMOVE THIS WHEN BLUETOOTH IS INTEGRATED
+    // Set shared preferences default values
+    PreferenceManager.setDefaultValues( this, R.xml.preference, false );
+    
+    // TODO: Modify for Bluetooth module integration
     mUnlockedStateImage.setVisibility( View.INVISIBLE );
+  }
+  
+  private void setupTransitions() {
+    Slide slide = new Slide( Gravity.BOTTOM );
+//    slide.excludeTarget( android.R.id.statusBarBackground, true );
+//    slide.excludeTarget( android.R.id.navigationBarBackground, true );
+//    slide.excludeTarget( android.R.id.background, true );
+    getWindow().setEnterTransition( slide );
   }
   
   private void toggleContent( int id ) {
@@ -91,13 +104,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         
         mKeefeeContainer.setVisibility( View.VISIBLE );
         mMapContainer.setVisibility( View.INVISIBLE );
+        mSettingsContainer.setVisibility( View.INVISIBLE );
         break;
       
       case R.id.bottom_navigation_location:
         setActionBarTitle( "LOCATION" );
-        
-        mKeefeeContainer.setVisibility( View.INVISIBLE );
+  
         mMapContainer.setVisibility( View.VISIBLE );
+        mKeefeeContainer.setVisibility( View.INVISIBLE );
+        mSettingsContainer.setVisibility( View.INVISIBLE );
         break;
       
       case R.id.bottom_navigation_activity:
@@ -105,15 +120,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         
         mKeefeeContainer.setVisibility( View.INVISIBLE );
         mMapContainer.setVisibility( View.INVISIBLE );
+        mSettingsContainer.setVisibility( View.INVISIBLE );
         break;
       
       case R.id.bottom_navigation_settings:
         setActionBarTitle( "SETTINGS" );
-        
+  
+        mSettingsContainer.setVisibility( View.VISIBLE );
         mKeefeeContainer.setVisibility( View.INVISIBLE );
         mMapContainer.setVisibility( View.INVISIBLE );
         break;
     }
+  }
+  
+  private void setActionBar() {
+    getSupportActionBar().setDisplayOptions( ActionBar.DISPLAY_SHOW_CUSTOM );
+    getSupportActionBar().setCustomView( R.layout.custom_actionbar_layout );
   }
   
   private void setActionBarTitle( String title ) {

@@ -5,6 +5,7 @@ package com.paulodacaya.keefree.ui;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.transition.Explode;
@@ -27,6 +28,9 @@ public class SplashActivity extends AppCompatActivity {
     setContentView( R.layout.activity_splash );
     ButterKnife.bind( this );
   
+    // Set shared preferences default values
+    PreferenceManager.setDefaultValues( this, R.xml.preference, false );
+    
     setupTransitions();
     startDelay();
   }
