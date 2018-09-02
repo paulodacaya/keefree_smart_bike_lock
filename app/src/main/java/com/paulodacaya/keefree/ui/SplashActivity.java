@@ -4,23 +4,25 @@ package com.paulodacaya.keefree.ui;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.transition.Explode;
-import android.view.View;
 import android.widget.ImageView;
 
 import com.paulodacaya.keefree.R;
+import com.paulodacaya.keefree.database.Database;
 import com.paulodacaya.keefree.utilities.Constants;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.realm.Realm;
 
 public class SplashActivity extends AppCompatActivity {
   
   @BindView( R.id.keefreeLogoImage ) ImageView mKeefreeLogoImage;
+  
+  private static final String tag = SplashActivity.class.getSimpleName();
   
   @Override
   protected void onCreate( Bundle savedInstanceState ) {
@@ -30,6 +32,10 @@ public class SplashActivity extends AppCompatActivity {
   
     // Set shared preferences default values
     PreferenceManager.setDefaultValues( this, R.xml.preference, false );
+    
+    // Initialize Realm (only done once) and log path
+    Realm.init( getApplicationContext() );
+    Database.logRealmFilePath();
     
     setupTransitions();
     startDelay();
@@ -47,11 +53,7 @@ public class SplashActivity extends AppCompatActivity {
   private void startDelay() {
     
     final Intent intent = new Intent( SplashActivity.this, LoginActivity.class );
-    final ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
-            this,
-            mKeefreeLogoImage,
-            getResources().getString( R.string.logo_transition_name )
-    );
+    final ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation( SplashActivity.this );
     
     // Delay splash screen for 1 second
     new Handler().postDelayed( new Runnable() {
@@ -60,5 +62,7 @@ public class SplashActivity extends AppCompatActivity {
         startActivity( intent, options.toBundle() );
       }
     }, Constants.SPLASH_DISPLAY_LENGTH );
+    
   }
+  
 }

@@ -9,6 +9,13 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <!-- Bluetooth Permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+
+    <!-- Declares that this app is available to BLE-compatible devices only. Set to false otherwise -->
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
+
     <application
         android:name=".utilities.KeefreeApplication"
         android:allowBackup="true"
@@ -42,8 +49,5 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".ui.ChangePinActivity">
-        </activity>
     </application>
 </manifest>

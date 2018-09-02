@@ -2,7 +2,10 @@
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyBp7xQlcrHSK61tVE4SC4oOli0YR1IbJF8</string>
 
     <string name="app_name">KeeFree</string>
-    
+
+    <string name="ok">OK</string>
+    <string name="cancel">CANCEL</string>
+
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_settings">Settings</string>
@@ -27,11 +30,6 @@
         press and hold on the lock icon.]]>
     </string>
 
-    <string name="wifi_connected">CONNECTED</string>
-    <string name="wifi_low_connected">LOW CONNECTION</string>
-    <string name="wifi_not_connected">NOT CONNECTED</string>
-    
-    <string name="logo_transition_name">logoTransition</string>
     <string name="enter_previous_passcode_prompt">Enter previous pin code</string>
     <string name="clear_prompt">Clear</string>
     <string name="confirm_prompt">Confirm</string>
@@ -51,5 +49,21 @@
     <string name="pref_default_phoneless_pin_code">1234</string>
     <string name="pref_title_phoneless_access_code">Phone-less Access Code</string>
     <string name="pref_summary_phoneless_access_code">Accessing physical KEEFREE smart bike lock when your phone is not present.</string>
+
+    <string name="ble_connected">CONNECTED</string>
+    <string name="ble_not_connected">NOT CONNECTED</string>
+    <string name="ble_not_supported_title">Bluetooth LE not supported!</string>
+    <string name="ble_not_supported_body">Unfortunately, your device does not support bluetooth low energy (LE).KEEFREE smart bike lock uses bluetooth LE in order to connect.\n\nThis application will now exit…</string>
+    <string name="ble_scan_failed_title">Scanning Error</string>
+    <string name="ble_scan_failed_body">Unable to scan. Please try again later.</string>
+    <string name="ble_no_devices_found_title">Cannot find your device</string>
+    <string name="ble_no_devices_found_body">Please check if your KEEFREE is turn on and that your in range.</string>
+
+    <string name="permission_location_title">Location Permission</string>
+    <string name="permission_location_body">In order to connect your KEEFREE smart bike lock, location permissions is required.</string>
+    <string name="ble_devices_title">Found Devices</string>
+    <string name="ble_devices_sub_title">Connect to your KEEFREE smart bike lock!</string>
+    <string name="loading_please_wait">Please wait…</string>
+
 
 </resources>

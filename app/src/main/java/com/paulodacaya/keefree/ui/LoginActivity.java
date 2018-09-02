@@ -1,12 +1,17 @@
 package com.paulodacaya.keefree.ui;
 
 import android.app.ActivityOptions;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.Fade;
+import android.transition.Slide;
+import android.view.Gravity;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -42,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
   @Override
   protected void onStop() {
     super.onStop();
-    finish(); // prevent flash on transition
+    finish(); // allow transition to complete before removing
   }
   
   private void handlePinCode() {
@@ -128,35 +133,53 @@ public class LoginActivity extends AppCompatActivity {
         
         if( inputPinCode.equals( storedPinCode ) ) {
           
+          Utilities.hideKeyboard( LoginActivity.this );
           Intent intent = new Intent( LoginActivity.this, MainActivity.class );
-          ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation( LoginActivity.this );
-  
-          startActivity( intent, options.toBundle() );
+          startActivity( intent );
           
         } else {
+          
           mPinCodeLabel.setText( R.string.wrong_pin_warning_message );
           mPinCodeLabel.setTextColor( warningRed );
           clearPinCodeFields();
           mPinCode1.requestFocus();
+          
         }
+        
       }
+      
     } );
+    
   }
   
   private void clearPinCodeFields() {
+    
     mPinCode1.getText().clear();
     mPinCode2.getText().clear();
     mPinCode3.getText().clear();
     mPinCode4.getText().clear();
+    
   }
   
   private void setupTransitions() {
+    
+    Fade fade = new Fade();
+    fade.excludeTarget( android.R.id.navigationBarBackground, true );
+    fade.excludeTarget( android.R.id.statusBarBackground, true );
+    fade.setDuration( 800l ); // 1 second
+    
+    getWindow().setEnterTransition( fade );
     getWindow().setExitTransition( null );
+    getWindow().setReenterTransition( null );
+    getWindow().setReturnTransition( null );
+    
   }
   
   @OnClick( R.id.clearPinCodeLabel )
   public void onClearPinCodeLabelClick() {
+    
     clearPinCodeFields();
     mPinCode1.requestFocus();
+    
   }
 }

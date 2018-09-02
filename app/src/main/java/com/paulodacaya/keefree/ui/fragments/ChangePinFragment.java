@@ -1,17 +1,19 @@
-package com.paulodacaya.keefree.ui;
+package com.paulodacaya.keefree.ui.fragments;
 
+import android.app.Fragment;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.Slide;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,15 +21,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.paulodacaya.keefree.R;
+import com.paulodacaya.keefree.database.Database;
+import com.paulodacaya.keefree.model.Code;
+import com.paulodacaya.keefree.model.State;
 import com.paulodacaya.keefree.utilities.Constants;
 import com.paulodacaya.keefree.utilities.Utilities;
+
+import java.time.Instant;
 
 import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class ChangePinActivity extends AppCompatActivity {
+public class ChangePinFragment extends Fragment {
   
   @BindView( R.id.clearButton ) Button mClearButton;
   @BindView( R.id.confirmButton ) Button mConfirmButton;
@@ -49,18 +56,28 @@ public class ChangePinActivity extends AppCompatActivity {
   String reEnteredPinCode;
   String storedPinCode;
   
+  @Nullable
   @Override
-  protected void onCreate( Bundle savedInstanceState ) {
-    super.onCreate( savedInstanceState );
-    setContentView( R.layout.activity_change_pin );
-    ButterKnife.bind( this );
-  
-    // Set shared preferences default values
-    PreferenceManager.setDefaultValues( this, R.xml.preference, false );
+  public View onCreateView( LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState ) {
     
-    setupTransitions();
+    View view = inflater.inflate( R.layout.fragment_changepin, container, false );
+    ButterKnife.bind( this, view );
+    
     handlePinCode();
-    setActionBar();
+    setupTransitions();
+    
+    return view;
+  }
+  
+  private void setupTransitions() {
+    
+      Slide slide = new Slide( Gravity.END );
+      slide.excludeTarget( android.R.id.statusBarBackground, true );
+      slide.excludeTarget( android.R.id.navigationBarBackground, true );
+      slide.excludeTarget( android.R.id.background, true );
+      
+      getActivity().getWindow().setEnterTransition( slide );
+      
   }
   
   private void handlePinCode() {
@@ -142,7 +159,7 @@ public class ChangePinActivity extends AppCompatActivity {
           /** Validating with stored password */
           
           inputPinCode = getInputPinCode();
-          storedPinCode = Utilities.getSharedPreferencePinCode( ChangePinActivity.this );
+          storedPinCode = Utilities.getSharedPreferencePinCode( getActivity() );
           
           // If stored pin code and input pin code match
           if( inputPinCode.equals( storedPinCode ) ) {
@@ -208,14 +225,6 @@ public class ChangePinActivity extends AppCompatActivity {
             mChangePinCode3.getText() + mChangePinCode4.getText();
   }
   
-  private void setupTransitions() {
-    Slide slide = new Slide( Gravity.END );
-    slide.excludeTarget( android.R.id.statusBarBackground, true );
-    slide.excludeTarget( android.R.id.navigationBarBackground, true );
-    slide.excludeTarget( android.R.id.background, true );
-    getWindow().setEnterTransition( slide );
-  }
-  
   @OnClick( R.id.clearButton )
   public void onClearButtonClick() {
     clearPinCodeFields();
@@ -231,17 +240,20 @@ public class ChangePinActivity extends AppCompatActivity {
       
       if( inputPinCode.equals( reEnteredPinCode ) ) {
         
-        Utilities.setSharedPreferencePinCode( this, reEnteredPinCode ); // Save to shared preferences
+        Utilities.setSharedPreferencePinCode( getActivity(), reEnteredPinCode ); // Save to shared preferences
         
-        Toast.makeText( ChangePinActivity.this,
-                "PIN CODE HAS BEEN CHANGED", Toast.LENGTH_SHORT )
+        Snackbar.make( getView(), "Pin code has successfully changed.", Snackbar.LENGTH_LONG )
                 .show();
         
         mPromptLabel.setText( R.string.successful_pin_code_change_prompt );
         mPromptLabel.setTextColor( successGreen );
         
+        // Store in database
+        Code code = new Code( Instant.now().toEpochMilli(), Constants.APP_CODE );
+        Database.writeCode( code );
+        
         resetPinCodeFields();
-        hideKeyboard();
+        Utilities.hideKeyboard( getActivity() );
         
       } else {
         
@@ -253,28 +265,5 @@ public class ChangePinActivity extends AppCompatActivity {
     }
   }
   
-  private void hideKeyboard() {
-    
-    InputMethodManager imm = (InputMethodManager) this.getSystemService( INPUT_METHOD_SERVICE );
-    
-    //Find the currently focused view, so we can grab the correct window token from it.
-    View view = this.getCurrentFocus();
-    
-    //If no view currently has focus, create a new one, just so we can grab a window token from it
-    if( view == null ) {
-      view = new View( this );
-    }
   
-    if( imm != null )
-      imm.hideSoftInputFromWindow( view.getWindowToken(), 0 );
-  }
-  
-  private void setActionBar() {
-    getSupportActionBar().setDisplayOptions( ActionBar.DISPLAY_SHOW_CUSTOM );
-    getSupportActionBar().setCustomView( R.layout.custom_actionbar_layout );
-  
-    View view = getSupportActionBar().getCustomView();
-    TextView titleTextView = view.findViewById( R.id.actionBarText );
-    titleTextView.setText( this.getString( R.string.title_activity_settings ) );
-  }
 }
