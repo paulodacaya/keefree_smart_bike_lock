@@ -3,9 +3,17 @@ package com.paulodacaya.keefree.utilities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.text.Layout;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.paulodacaya.keefree.R;
 
@@ -30,6 +38,28 @@ public class Utilities {
     SharedPreferences.Editor editor = sharedPreferences.edit();
     
     editor.putString( context.getString( R.string.pref_key_pin_code ), newPinCode ).apply();
+  }
+  
+  public static void promptSnackbar( Activity activity, String message ) {
+    
+    View bottomNavigationView = activity.findViewById( R.id.bottomNavigation );
+    
+    Snackbar snackbar = Snackbar.make( activity.findViewById( R.id.rootLayout ), message, Snackbar.LENGTH_LONG );
+    
+    View snackbarView = snackbar.getView();
+    snackbarView.setBackgroundColor( activity.getColor( R.color.colorAccentDark ) );
+    snackbarView.setMinimumHeight( bottomNavigationView.getHeight() );
+    
+    TextView snackBarText = snackbarView.findViewById( android.support.design.R.id.snackbar_text );
+    snackBarText.setHeight( bottomNavigationView.getHeight() );
+    snackBarText.setTypeface( Typeface.createFromAsset( activity.getAssets(), "alegreya_sans_medium.ttf" ) );
+    snackBarText.setTextSize( 16f );
+    //snackBarText.setTextAlignment( View.TEXT_ALIGNMENT_CENTER );
+    snackBarText.setTextColor( activity.getColor( R.color.colorWhite ) );
+    snackBarText.setGravity( Gravity.CENTER_VERTICAL );
+    
+    snackbar.show();
+    
   }
   
   public static void hideKeyboard( Activity activity ) {

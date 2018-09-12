@@ -64,7 +64,7 @@ public class ListDialogFragment extends DialogFragment {
     
     View dialogView = inflater.inflate( R.layout.fragment_list_dialog, null );
     
-    builder.setView( dialogView ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
+    builder.setView( dialogView ).setNegativeButton( getString( R.string.cancel ), new DialogInterface.OnClickListener() {
       @Override
       public void onClick( DialogInterface dialog, int which ) {
         // Dismiss dialog automatically

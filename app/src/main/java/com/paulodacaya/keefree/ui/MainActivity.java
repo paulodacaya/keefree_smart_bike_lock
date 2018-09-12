@@ -6,12 +6,9 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
@@ -20,31 +17,31 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.databinding.adapters.ToolbarBindingAdapter;
 import android.location.LocationManager;
-import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelUuid;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -54,43 +51,73 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.paulodacaya.keefree.R;
+import com.paulodacaya.keefree.database.Database;
+import com.paulodacaya.keefree.model.Record;
 import com.paulodacaya.keefree.ui.fragments.BasicDialogFragment;
 import com.paulodacaya.keefree.ui.fragments.ListDialogFragment;
 import com.paulodacaya.keefree.ui.fragments.LoadingDialogFragment;
 import com.paulodacaya.keefree.ui.fragments.SettingsFragment;
 import com.paulodacaya.keefree.utilities.Constants;
+import com.paulodacaya.keefree.utilities.Utilities;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
+import io.realm.Realm;
 
+
+/**
+ *  Tasks TODO
+ *  * Handle a timeout of unlocking, security ON and security OFF when no message is return from Arduino.
+ *      * Edge case: disconnection when sending/receiving messages.
+ *
+ *  * Auto connect to device when have connected previously.
+ *      * Use database to manage if connected previously?
+ */
 public class MainActivity extends AppCompatActivity
-        implements OnMapReadyCallback, ListDialogFragment.onDeviceSelectedInterface {
+        implements OnMapReadyCallback, ListDialogFragment.onDeviceSelectedInterface,
+        BasicDialogFragment.onSecurityOffInterface {
   
   public static final String TAG = MainActivity.class.getSimpleName();
   
+  @BindView( R.id.activitySwipeRefresh ) SwipeRefreshLayout mActivitySwipeRefresh;
   @BindView( R.id.bottomNavigation ) BottomNavigationView mBottomNavigationView;
+  @BindView( R.id.activityContainer ) ConstraintLayout mActivityContainer;
   @BindView( R.id.mapContainer ) ConstraintLayout mMapContainer;
-  @BindView( R.id.keefreeContainer ) ConstraintLayout mKeefeeContainer;
+  @BindView( R.id.keefreeContainer ) ConstraintLayout mKeefreeContainer;
   @BindView( R.id.settingsContainer ) FrameLayout mSettingsContainer;
   @BindView( R.id.lockedStateImage ) ImageView mLockedStateImage;
   @BindView( R.id.unlockedStateImage ) ImageView mUnlockedStateImage;
+  @BindView( R.id.linkImage ) ImageView mLinkImage;
   @BindView( R.id.connectedImage ) ImageView mConnectedImage;
   @BindView( R.id.connectedPrompt ) TextView mConnectedPrompt;
-  @BindView( R.id.bleProgressBar ) ProgressBar mBleProgressBar;
+  @BindView( R.id.connectedProgressBar ) ProgressBar mConnectedProgressBar;
+  @BindView( R.id.shieldImage ) ImageView mShieldImage;
+  @BindView( R.id.securityImage ) ImageView mSecurityImage;
+  @BindView( R.id.securityPrompt ) TextView mSecurityPrompt;
+  @BindView( R.id.securityProgressBar ) ProgressBar mSecurityProgressBar;
+  @BindView( R.id.activityRecyclerView ) RecyclerView mActivityRecyclerView;
+  ImageView mActionReloadImage;
+  
+  Vibrator mVibrator;
+  
+  private Realm mRealm;
+  
+  private ActivityAdapter mActivityAdapter;
+  private List<Record> mActivityRecords;
   
   private GoogleMap mMap;
   private LocationManager mLocationManager; // used to manage location
   
   private Handler mHandler;
-  private boolean mScanning;
-  private boolean mInitialised;
+  private boolean mIsScanning = false;
+  private boolean mIsInitialised = false;
+  private boolean mIsSecurityOn = false;
   
   private static final int STATE_DISCONNECTED = 0;
   private static final int STATE_CONNECTING = 1;
@@ -124,13 +151,9 @@ public class MainActivity extends AppCompatActivity
       super.onScanFailed( errorCode );
       
       // Prompt failure to scan
-      DialogFragment failureToScanDialog = new BasicDialogFragment(
-              getString( R.string.ble_scan_failed_title ),
+      promptBasicDialog( getString( R.string.ble_scan_failed_title ),
               getString( R.string.ble_scan_failed_body ) + "\nError code: " + errorCode,
-              false,
-              true );
-  
-      failureToScanDialog.show( getSupportFragmentManager(), Constants.TAG_BASIC_DIALOG );
+              Constants.Status.HAS_BLE_SUPPORT );
       
     }
   };
@@ -150,6 +173,7 @@ public class MainActivity extends AppCompatActivity
           @Override
           public void run() {
             showConnected();
+            toggleShieldImage();
           }
         } );
         
@@ -190,7 +214,7 @@ public class MainActivity extends AppCompatActivity
         BluetoothGattCharacteristic characteristic = service.getCharacteristic( Constants.BLE_DEVICE_CHARACTERISTICS_UUID );
         
         characteristic.setWriteType( BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT );
-        mInitialised = gatt.setCharacteristicNotification( characteristic, true );
+        mIsInitialised = gatt.setCharacteristicNotification( characteristic, true );
         
       } else {
   
@@ -255,8 +279,40 @@ public class MainActivity extends AppCompatActivity
       
         // TODO: Handle different message received from device:
         if( message.equals( Constants.RECEIVED_UNLOCK ) ) {
+          
           mLoadingDialog.dismiss();
-          toggleULockingImage();
+          
+          runOnUiThread( new Runnable() {
+            @Override
+            public void run() {
+              toggleLockingImage();
+            }
+          } );
+          
+        } else if( message.equals( Constants.RECEIVED_SECURITY_ON ) ) {
+          
+          mLoadingDialog.dismiss();
+          mIsSecurityOn = true;
+          
+          runOnUiThread( new Runnable() {
+            @Override
+            public void run() {
+              showSecurityOn();
+            }
+          } );
+          
+        } else if( message.equals( Constants.RECEIVED_SECURITY_OFF ) ) {
+  
+          mLoadingDialog.dismiss();
+          mIsSecurityOn = false;
+  
+          runOnUiThread( new Runnable() {
+            @Override
+            public void run() {
+              showSecurityOff();
+            }
+          } );
+          
         }
       
       } catch( UnsupportedEncodingException error ) {
@@ -268,19 +324,20 @@ public class MainActivity extends AppCompatActivity
     }
   
     
-    private void disconnectGattServer() {
-      
-      mConnectionState = STATE_DISCONNECTED;
-      
-      if( mBluetoothGatt != null ) {
-        
-        mBluetoothGatt.disconnect();
-        mBluetoothGatt.close();
-        showNotConnected();
-        
-      }
-      
-    }
+//    private void disconnectGattServer() {
+//
+//      mConnectionState = STATE_DISCONNECTED;
+//      mIsInitialised = false;
+//
+//      if( mBluetoothGatt != null ) {
+//
+//        mBluetoothGatt.disconnect();
+//        mBluetoothGatt.close();
+//        showNotConnected();
+//
+//      }
+//
+//    }
     
   };
   
@@ -289,7 +346,13 @@ public class MainActivity extends AppCompatActivity
     super.onCreate( savedInstanceState );
     setContentView( R.layout.activity_main );
     ButterKnife.bind( this );
-  
+    mVibrator = (Vibrator) getSystemService( Context.VIBRATOR_SERVICE );
+    
+    // OPEN REALM DATABASE
+    Realm.deleteRealm( Database.getRealmConfiguration() ); // TODO: remove when deploying.
+    mRealm = Realm.getInstance( Database.getRealmConfiguration() );
+    
+    // ACTION BAR
     setActionBar();
   
     // GOOGLE MAPS
@@ -304,7 +367,7 @@ public class MainActivity extends AppCompatActivity
     PreferenceManager.setDefaultValues( this, R.xml.preference, false );
   
     // Settings fragment
-    SettingsFragment settingsFragment = new SettingsFragment();
+    SettingsFragment settingsFragment = new SettingsFragment( mRealm );
     getFragmentManager().beginTransaction()
             .add( R.id.settingsContainer, settingsFragment, Constants.SETTINGS_FRAGMENT )
             .commit();
@@ -314,7 +377,12 @@ public class MainActivity extends AppCompatActivity
     if( hasBluetoothSupport() ) {
       setUpBluetooth();
     }
-  
+    
+    // Activity Section
+    setActivitySection();
+    
+    // Swipe refresh handler
+    setSwipeRefresh();
   }
   
   @Override
@@ -326,6 +394,14 @@ public class MainActivity extends AppCompatActivity
       Log.d(  TAG ,"Still Working..." );
     }
     
+  }
+  
+  @Override
+  protected void onDestroy() {
+    super.onDestroy();
+    
+    // Close realm
+    mRealm.close();
   }
   
   private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -361,23 +437,32 @@ public class MainActivity extends AppCompatActivity
       case R.id.bottom_navigation_keefree:
         setActionBarTitle( this.getString( R.string.actionbar_title_keefree ) );
         
-        mKeefeeContainer.setVisibility( View.VISIBLE );
+        mKeefreeContainer.setVisibility( View.VISIBLE );
         mMapContainer.setVisibility( View.INVISIBLE );
         mSettingsContainer.setVisibility( View.INVISIBLE );
+        mActivityContainer.setVisibility( View.INVISIBLE );
+        mActionReloadImage.setVisibility( View.INVISIBLE );
         break;
       
       case R.id.bottom_navigation_location:
         setActionBarTitle( this.getString( R.string.actionbar_title_location ) );
   
         mMapContainer.setVisibility( View.VISIBLE );
-        mKeefeeContainer.setVisibility( View.INVISIBLE );
+        mKeefreeContainer.setVisibility( View.INVISIBLE );
         mSettingsContainer.setVisibility( View.INVISIBLE );
+        mActivityContainer.setVisibility( View.INVISIBLE );
+        mActionReloadImage.setVisibility( View.INVISIBLE );
         break;
       
       case R.id.bottom_navigation_activity:
         setActionBarTitle( this.getString( R.string.actionbar_title_activity ) );
         
-        mKeefeeContainer.setVisibility( View.INVISIBLE );
+        // TODO: Call refresh - may not want to always do this?
+        //updateActivitySection();
+        
+        mActivityContainer.setVisibility( View.VISIBLE );
+        mActionReloadImage.setVisibility( View.VISIBLE );
+        mKeefreeContainer.setVisibility( View.INVISIBLE );
         mMapContainer.setVisibility( View.INVISIBLE );
         mSettingsContainer.setVisibility( View.INVISIBLE );
         break;
@@ -386,8 +471,10 @@ public class MainActivity extends AppCompatActivity
         setActionBarTitle( this.getString( R.string.actionbar_title_settings ) );
   
         mSettingsContainer.setVisibility( View.VISIBLE );
-        mKeefeeContainer.setVisibility( View.INVISIBLE );
+        mKeefreeContainer.setVisibility( View.INVISIBLE );
         mMapContainer.setVisibility( View.INVISIBLE );
+        mActivityContainer.setVisibility( View.INVISIBLE );
+        mActionReloadImage.setVisibility( View.INVISIBLE );
         break;
     }
     
@@ -398,6 +485,22 @@ public class MainActivity extends AppCompatActivity
     getSupportActionBar().setDisplayOptions( ActionBar.DISPLAY_SHOW_CUSTOM );
     getSupportActionBar().setCustomView( R.layout.custom_actionbar_layout );
     
+    View customActionBar = getSupportActionBar().getCustomView();
+    mActionReloadImage = customActionBar.findViewById( R.id.actionBarReloadImage );
+    
+    // Handle refresh button click
+    mActionReloadImage.setOnClickListener( new View.OnClickListener() {
+      @Override
+      public void onClick( View v ) {
+        
+        Log.d( TAG, "Reload button clicked" );
+        mActivitySwipeRefresh.setRefreshing( true );
+        updateActivitySection();
+        mActivitySwipeRefresh.setRefreshing( false );
+        
+      }
+    } );
+    
   }
   
   private void setActionBarTitle( String title ) {
@@ -406,6 +509,36 @@ public class MainActivity extends AppCompatActivity
     TextView titleTextView = view.findViewById( R.id.actionBarText );
     titleTextView.setText( title );
     
+  }
+  
+  private void setActivitySection() {
+  
+    mActivityRecords = Database.getAllRecord( mRealm );
+    mActivityAdapter = new ActivityAdapter( this, mActivityRecords );
+    
+    mActivityRecyclerView.setAdapter( mActivityAdapter );
+    mActivityRecyclerView.setHasFixedSize( true );
+    //mActivityRecyclerView.addItemDecoration( new DividerItemDecoration( this, DividerItemDecoration.VERTICAL ) ); // adds divider lines
+    mActivityRecyclerView.setLayoutManager( new LinearLayoutManager( this ) );
+    
+  }
+  
+  private void setSwipeRefresh() {
+    
+    mActivitySwipeRefresh.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener() {
+      @Override
+      public void onRefresh() {
+        
+        Log.d( TAG, "onRefresh called from SwipeRefreshLayout" );
+        updateActivitySection();
+        mActivitySwipeRefresh.setRefreshing( false );
+        
+      }
+    } );
+  }
+  
+  private void updateActivitySection() {
+    mActivityRecords = Database.getAllRecord( mRealm );
   }
   
   private void requestPermissions() {
@@ -420,8 +553,7 @@ public class MainActivity extends AppCompatActivity
           
           promptBasicDialog( getString( R.string.permission_location_title ),
                   getString( R.string.permission_location_body ),
-                  true,
-                  true );
+                  Constants.Status.REQUESTING_PERMISSION );
         
         } else {
           
@@ -461,8 +593,7 @@ public class MainActivity extends AppCompatActivity
       
       promptBasicDialog( getString( R.string.ble_not_supported_title ),
               getString( R.string.ble_not_supported_body ),
-              false,
-              false );
+              Constants.Status.NO_BLE_SUPPORT );
       
       return false;
     }
@@ -479,6 +610,7 @@ public class MainActivity extends AppCompatActivity
     mScannedDevicesDialog = new ListDialogFragment(); // Initialise dialog here?
     
     if( isBluetoothActive() ) {
+      mConnectionState = STATE_DISCONNECTED;
       Log.d( TAG, "Bluetooth is active on device..." );
     }
     
@@ -501,6 +633,7 @@ public class MainActivity extends AppCompatActivity
   
   private void scanForBLEDevice() {
     
+    // TODO: HANDLE AUTO CONNECTED IF ITS BEEN CONNECTED PREVIOUSLY!
     if( hasBluetoothSupport() ) {
       
       // Stop scanning after pre-defined scanning period.
@@ -511,7 +644,6 @@ public class MainActivity extends AppCompatActivity
           Log.d( TAG, "Stopped scanning after scanning period" );
           
           showNotConnected();
-          
           mBluetoothLeScanner.stopScan( mLeScanCallBack );
           
           // Display after scanning completes
@@ -523,20 +655,20 @@ public class MainActivity extends AppCompatActivity
           
             promptBasicDialog( getString( R.string.ble_no_devices_found_title ),
                     getString( R.string.ble_no_devices_found_body ),
-                    false,
-                    true );
+                    Constants.Status.HAS_BLE_SUPPORT );
             
           }
           
           // Variable Cleanup
-          mScanning = false;
+          mIsScanning = false;
+          mIsInitialised = false;
     
         }
       }, Constants.SCAN_PERIOD );
       
       mScannedDevicesDialog.clearDevices(); // Clear the list when devices have been scanned previously.
-      mScanning = true;
-      showLoading();
+      mIsScanning = true;
+      showScanLoading();
       
       // Start scan with filter and setting
       mBluetoothLeScanner.startScan(
@@ -559,7 +691,7 @@ public class MainActivity extends AppCompatActivity
       
     } else {
       
-      mScanning = false;
+      mIsScanning = false;
       mBluetoothLeScanner.stopScan( mLeScanCallBack );
       showNotConnected();
       
@@ -572,10 +704,10 @@ public class MainActivity extends AppCompatActivity
     
     mScannedDevicesDialog.dismiss();
     mConnectionState = STATE_CONNECTING;
-    showLoading();
+    showScanLoading();
     
     // Connect device to Bluetooth Gatt
-    // TODO: AUTO connect is set to false, may want to change this for testing.
+    // TODO: AUTO connection?
     mBluetoothGatt = device.connectGatt( this,false, mBluetoothGattCallback );
     
   }
@@ -584,7 +716,7 @@ public class MainActivity extends AppCompatActivity
   public void onMapReady( GoogleMap googleMap ) {
     
     mMap = googleMap;
-    mLocationManager = (LocationManager) this.getSystemService( LOCATION_SERVICE ); // instantiate LocationManager
+    mLocationManager = (LocationManager) this.getSystemService( LOCATION_SERVICE );
     
     // Add a marker in Sydney and move the camera
     LatLng sydney = new LatLng( -37.843964, 144.968183 );
@@ -597,20 +729,22 @@ public class MainActivity extends AppCompatActivity
   }
   
   @OnClick( R.id.linkImage )
-  public void linkImageClick() {
+  public void onLinkImageClick() {
+    
+    mVibrator.vibrate( VibrationEffect.createOneShot( 50, 100 ) );
     
     if( !isBluetoothActive() && !hasPermissions() ) {
       requestPermissions();
       return;
     }
     
-    if ( mScanning ) {
-      promptToast( "Already scanning..." );
+    if ( mIsScanning ) {
+      Utilities.promptSnackbar( this, "Already scanning..." );
       return;
     }
     
     if( mConnectionState == STATE_CONNECTED ) {
-      promptToast( "Already connected..." );
+      Utilities.promptSnackbar( this,"Already connected..." );
       return;
     }
     
@@ -622,38 +756,87 @@ public class MainActivity extends AppCompatActivity
   
   }
   
-  /**
-   *  1. Change Method name appropriately
-   *  2. Unlock/Lock bike lock:
-   *    2.1 Check if there is bluetooth connection
-   *      2.1.1 Display prompt if there is no image
-   *    2.2 Send unlock request
-   *      2.2.1 Display a spinner to hold UI
-   *    2.3 Receive response from bike
-   *  3. Update UI accordingly to response
-   */
-  @OnLongClick( R.id.keefreeButton )
-  public boolean UnlockKeefree() {
+  @OnLongClick( R.id.linkImage )
+  public boolean OnLinkImageLongClick() {
     
-    if( mConnectionState == STATE_CONNECTED && mInitialised ) {
+    if( mConnectionState == STATE_DISCONNECTED && !mIsInitialised ) {
+      return true;
+    }
+  
+    PopupMenu popupMenu = new PopupMenu( this, mLinkImage );
+    popupMenu.getMenuInflater().inflate( R.menu.popup, popupMenu.getMenu() );
+    
+    popupMenu.setOnMenuItemClickListener( new PopupMenu.OnMenuItemClickListener() {
+      @Override
+      public boolean onMenuItemClick( MenuItem item ) {
+      
+        switch( item.getItemId() ) {
+          
+          case R.id.popup_disconnect:
+            disconnectGattServer();
+            return true;
+        }
+        
+        return false;
+      }
+    } );
+    popupMenu.show();
+    
+    return true;
+  }
+  
+  @OnClick( R.id.shieldImage )
+  public void onShieldImageClick() {
+    
+    mVibrator.vibrate( VibrationEffect.createOneShot( 50, 100 ) );
+  
+    if( mConnectionState != STATE_CONNECTED && !mIsInitialised ) {
+      return; // Do nothing... low opacity image should suggest so.
+    }
+    
+    if( mConnectionState == STATE_CONNECTED && mIsInitialised && mIsSecurityOn ) {
+      
+      promptBasicDialog( getString( R.string.security_off_title ),
+              getString( R.string.security_off_body ),
+              Constants.Status.TURN_SECURITY_OFF );
+      return;
+    }
+    
+    showSecurityLoading();
+    promptLoadingDialog();
+    sendCharacter( Constants.SEND_SECURITY_ON );
+  }
+  
+  @Override
+  public void onSecurityOffSelected() {
+  
+    showSecurityLoading();
+    promptLoadingDialog();
+    sendCharacter( Constants.SEND_SECURITY_OFF );
+  
+  }
+  
+  @OnLongClick( R.id.keefreeButton )
+  public boolean onKeefreeButtonLongClick() {
+    
+    if( mConnectionState == STATE_CONNECTED && mIsInitialised ) {
       
       promptLoadingDialog();
-      
-      BluetoothGattService service = mBluetoothGatt.getService( Constants.BLE_DEVICE_SERVICE_UUID );
-      BluetoothGattCharacteristic characteristic = service.getCharacteristic( Constants.BLE_DEVICE_CHARACTERISTICS_UUID );
-      
-      sendCharacter( characteristic, Constants.SEND_UNLOCK );
+      sendCharacter( Constants.SEND_UNLOCK );
     
     } else {
       
-      promptToast( "You are not connected..." );
+      Utilities.promptSnackbar( this ,"You are not connected..." );
       
     }
     
     return true;
   }
   
-  private void sendCharacter( BluetoothGattCharacteristic characteristic, String message ) {
+  private void sendCharacter( String message ) {
+    
+    BluetoothGattService service = mBluetoothGatt.getService( Constants.BLE_DEVICE_SERVICE_UUID );
+    BluetoothGattCharacteristic characteristic = service.getCharacteristic( Constants.BLE_DEVICE_CHARACTERISTICS_UUID );
     
     byte[] messageBytes = new byte[0];
     
@@ -668,14 +851,35 @@ public class MainActivity extends AppCompatActivity
     
   }
   
-  private void promptBasicDialog( String title, String body, boolean isRequestingPermission, boolean hasBleSupport ) {
+  private void disconnectGattServer() {
     
-    DialogFragment dialog = new BasicDialogFragment(
-            getString( R.string.ble_no_devices_found_title ),
-            getString( R.string.ble_no_devices_found_body ),
-            false,
-            true );
+    mConnectionState = STATE_DISCONNECTED;
+    mIsInitialised = false;
     
+    if( mBluetoothGatt != null ) {
+      
+      mBluetoothGatt.disconnect();
+      mBluetoothGatt.close();
+      mBluetoothGatt = null;
+      
+      runOnUiThread( new Runnable() {
+        @Override
+        public void run() {
+          showNotConnected();
+          showSecurityOff();
+          if( mConnectionState == STATE_DISCONNECTED )
+            toggleShieldImage();
+        }
+      } );
+      
+      
+    }
+    
+  }
+  
+  private void promptBasicDialog( String title, String body, Constants.Status status ) {
+    
+    DialogFragment dialog = new BasicDialogFragment( title, body, status );
     dialog.show( getSupportFragmentManager(), Constants.TAG_BASIC_DIALOG );
     
   }
@@ -687,23 +891,7 @@ public class MainActivity extends AppCompatActivity
   
   }
   
-  private void promptToast( String message ) {
-  
-    Toast toast = Toast.makeText( this, message, Toast.LENGTH_LONG );
-    View toastView = toast.getView();
-    
-    toastView.setBackground( getDrawable( R.drawable.bg_rounded_dark ) );
-    
-    TextView textView = toastView.findViewById( android.R.id.message );
-    textView.setTextColor( getColor( R.color.colorWhite ) );
-    
-    toast.setGravity( Gravity.CENTER_HORIZONTAL | Gravity.TOP, 0, 400 );
-    
-    toast.show();
-    
-  }
-  
-  private void toggleULockingImage() {
+  private void toggleLockingImage() {
     
     if( mLockedStateImage.getVisibility() == View.VISIBLE ) {
       
@@ -719,16 +907,36 @@ public class MainActivity extends AppCompatActivity
     
   }
   
-  public void showLoading() {
+  private void toggleShieldImage() {
+  
+    if( mConnectionState == STATE_CONNECTED ) {
     
-    mBleProgressBar.setVisibility( View.VISIBLE );
+      mShieldImage.setImageResource( R.drawable.keefree_security );
+    
+    } else {
+  
+      mShieldImage.setImageResource( R.drawable.keefree_security_null );
+    
+    }
+  }
+  
+  public void showScanLoading() {
+    
+    mConnectedProgressBar.setVisibility( View.VISIBLE );
     mConnectedImage.setVisibility( View.INVISIBLE );
+    
+  }
+  
+  public void showSecurityLoading() {
+    
+    mSecurityProgressBar.setVisibility( View.VISIBLE );
+    mSecurityImage.setVisibility( View.INVISIBLE );
     
   }
   
   public void showNotConnected() {
     
-    mBleProgressBar.setVisibility( View.INVISIBLE );
+    mConnectedProgressBar.setVisibility( View.INVISIBLE );
     mConnectedPrompt.setText( getString( R.string.ble_not_connected ) );
     mConnectedImage.setVisibility( View.VISIBLE );
     mConnectedImage.setImageResource( R.drawable.ic_circle_x );
@@ -737,10 +945,28 @@ public class MainActivity extends AppCompatActivity
   
   public void showConnected() {
   
-    mBleProgressBar.setVisibility( View.INVISIBLE );
+    mConnectedProgressBar.setVisibility( View.INVISIBLE );
     mConnectedPrompt.setText( getString( R.string.ble_connected ) );
     mConnectedImage.setVisibility( View.VISIBLE );
     mConnectedImage.setImageResource( R.drawable.ic_circle_check );
+    
+  }
+  
+  public void showSecurityOff() {
+    
+    mSecurityProgressBar.setVisibility( View.INVISIBLE );
+    mSecurityPrompt.setText( getString( R.string.security_off ) );
+    mSecurityImage.setVisibility( View.VISIBLE );
+    mSecurityImage.setImageResource( R.drawable.ic_circle_x );
+    
+  }
+  
+  public void showSecurityOn() {
+    
+    mSecurityProgressBar.setVisibility( View.INVISIBLE );
+    mSecurityPrompt.setText( getString( R.string.security_on ) );
+    mSecurityImage.setVisibility( View.VISIBLE );
+    mSecurityImage.setImageResource( R.drawable.ic_circle_check );
     
   }
   

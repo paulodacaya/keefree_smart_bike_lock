@@ -2,12 +2,22 @@ package com.paulodacaya.keefree.utilities;
 
 import java.util.UUID;
 
+
+
 public class Constants {
+  
+  public enum Status { REQUESTING_PERMISSION, NO_BLE_SUPPORT, HAS_BLE_SUPPORT, TURN_SECURITY_OFF }
+  
+  public static final int UNLOCKED = 1;
+  public static final int SECURITY_ON = 2;
+  public static final int SECURITY_OFF = 3;
+  public static final int APP_CODE = 4;
+  public static final int PHONELESS_APP_CODE = 5;
+  
   
   public static final int SPLASH_DISPLAY_LENGTH = 500;
   
-  public static final String APP_CODE = "app_code";
-  public static final String PHONELESS_ACCESS_CODE = "phone-less_access_code";
+  public static final String TIMEZONE_ID = "Australia/Melbourne";
   
   public static final String SETTINGS_FRAGMENT = "settings_fragment";
   public static final String TAG_BASIC_DIALOG = "ble_basic_dialog";
@@ -25,6 +35,12 @@ public class Constants {
   
   public static final String SEND_UNLOCK = "u";
   public static final String RECEIVED_UNLOCK = "unlock";
+  
+  public static final String SEND_SECURITY_ON = "s";
+  public static final String RECEIVED_SECURITY_ON = "security_on";
+  
+  public static final String SEND_SECURITY_OFF = "e";
+  public static final String RECEIVED_SECURITY_OFF = "security_off";
   
 }
 

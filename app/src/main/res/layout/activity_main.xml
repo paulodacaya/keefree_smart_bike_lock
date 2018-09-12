@@ -3,11 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/coordinatorLayout"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity">
-
 
     <FrameLayout
         android:id="@+id/settingsContainer"
@@ -18,6 +17,31 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
     </FrameLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/activityContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/activitySwipeRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/activityRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </android.support.v7.widget.RecyclerView>
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+    </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/mapContainer"
@@ -57,11 +81,21 @@
             android:id="@+id/linkImage"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginStart="24dp"
+            android:layout_marginStart="32dp"
             android:layout_marginTop="24dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_link_intact" />
+
+        <ImageView
+            android:id="@+id/shieldImage"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linkImage"
+            app:srcCompat="@drawable/keefree_security_null" />
 
         <TextView
             android:id="@+id/connectedPrompt"
@@ -80,14 +114,14 @@
             android:id="@+id/connectedImage"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginEnd="32dp"
             android:layout_marginTop="24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_circle_x" />
 
         <ProgressBar
-            android:id="@+id/bleProgressBar"
+            android:id="@+id/connectedProgressBar"
             android:layout_width="36dp"
             android:layout_height="36dp"
             android:visibility="invisible"
@@ -98,6 +132,47 @@
             app:layout_constraintTop_toTopOf="@id/connectedImage"
             app:layout_constraintBottom_toBottomOf="@id/connectedImage"
             tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/securityPrompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/alegreya_sans_bold"
+            android:text="@string/security_off"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:layout_editor_absoluteX="150dp"
+            tools:layout_editor_absoluteY="77dp"
+            app:layout_constraintBottom_toBottomOf="@id/securityImage"
+            app:layout_constraintEnd_toStartOf="@id/securityImage"
+            app:layout_constraintTop_toTopOf="@id/securityImage" />
+
+        <ImageView
+            android:id="@+id/securityImage"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/connectedImage"
+            app:srcCompat="@drawable/ic_circle_x" />
+
+        <ProgressBar
+            android:id="@+id/securityProgressBar"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:visibility="invisible"
+            android:indeterminateTint="@color/colorPrimary"
+            android:indeterminateTintMode="src_in"
+            app:layout_constraintStart_toStartOf="@id/securityImage"
+            app:layout_constraintEnd_toEndOf="@id/securityImage"
+            app:layout_constraintTop_toTopOf="@id/securityImage"
+            app:layout_constraintBottom_toBottomOf="@id/securityImage"
+            tools:visibility="visible"
+
+            tools:layout_editor_absoluteX="216dp"
+            tools:layout_editor_absoluteY="65dp" />
 
         <ImageView
             android:id="@+id/lockedStateImage"

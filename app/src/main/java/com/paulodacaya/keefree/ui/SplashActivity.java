@@ -35,6 +35,7 @@ public class SplashActivity extends AppCompatActivity {
     
     // Initialize Realm (only done once) and log path
     Realm.init( getApplicationContext() );
+    
     Database.logRealmFilePath();
     
     setupTransitions();

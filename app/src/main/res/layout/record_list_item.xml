@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" >
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="record"
+            type="com.paulodacaya.keefree.model.Record" />
+        <variable
+            name="constants"
+            type="com.paulodacaya.keefree.utilities.Constants" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="90dp" >
+
+        <ImageView
+            android:id="@+id/recordImage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@{ (record.type == constants.APP_CODE) ? @drawable/bg_app_code_change : (record.type == constants.SECURITY_OFF) ? @drawable/bg_state_security_off : (record.type == constants.SECURITY_ON) ? @drawable/bg_state_security_on : @drawable/bg_state_unlocked }"
+            tools:srcCompat="@drawable/bg_state_security_on" />
+
+        <TextView
+            android:id="@+id/recordText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/alegreya_sans_bold"
+            android:text="@{ (record.type == constants.APP_CODE) ? `App code changed` : (record.type == constants.SECURITY_OFF) ? `Security turned off` : (record.type == constants.SECURITY_ON) ? `Security turned on` : (record.type == constants.UNLOCKED) ? `Unlocked` : `Phone-less code changed` }"
+            android:textColor="@color/colorWhite"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@+id/recordImage"
+            app:layout_constraintTop_toTopOf="@+id/recordImage"
+            tools:text="App code changed" />
+
+        <TextView
+            android:id="@+id/recordTimeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="16dp"
+            android:textColor="@color/colorWhite"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:text="@{record.time}"
+            app:layout_constraintBottom_toBottomOf="@+id/recordImage"
+            app:layout_constraintEnd_toEndOf="@+id/recordImage"
+            tools:text="31/10/95 at 9:30 PM" />
+
+        <Button
+            android:id="@+id/recordInfoButton"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/ic_info"
+            app:layout_constraintEnd_toEndOf="@+id/recordImage"
+            app:layout_constraintTop_toTopOf="@+id/recordImage"
+            android:visibility="@{ (record.type == constants.APP_CODE || record.type == constants.PHONELESS_APP_CODE) ? View.VISIBLE : View.INVISIBLE }" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</layout>

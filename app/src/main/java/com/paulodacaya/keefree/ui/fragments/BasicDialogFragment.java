@@ -18,26 +18,30 @@ import com.paulodacaya.keefree.utilities.Constants;
 
 public class BasicDialogFragment extends DialogFragment {
   
+  public interface onSecurityOffInterface {
+    void onSecurityOffSelected();
+  }
+  
   private String mTitle;
   private String mBody;
   
-  private boolean mIsRequestingPermission = false;
-  private boolean mHasBleSupport = false;
+  private Constants.Status mStatus;
   
   public BasicDialogFragment() {
   }
   
   @SuppressLint( "ValidFragment" )
-  public BasicDialogFragment( String title, String body, boolean isRequestingPermissions, boolean hasBleSupport ) {
+  public BasicDialogFragment( String title, String body, Constants.Status status ) {
     mTitle = title;
     mBody = body;
-    mIsRequestingPermission = isRequestingPermissions;
-    mHasBleSupport = hasBleSupport;
+    mStatus = status;
   }
   
   @NonNull
   @Override
   public Dialog onCreateDialog( Bundle savedInstanceState ) {
+    
+    final onSecurityOffInterface listener = (onSecurityOffInterface) getActivity();
   
     AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
     
@@ -46,29 +50,43 @@ public class BasicDialogFragment extends DialogFragment {
   
     View dialogView = inflater.inflate( R.layout.fragment_basic_dialog, null );
     
-    builder.setView( dialogView ).setPositiveButton( R.string.ok, new DialogInterface.OnClickListener() {
+    builder.setView( dialogView ).setPositiveButton( getString( R.string.ok ), new DialogInterface.OnClickListener() {
       @Override
       public void onClick( DialogInterface dialog, int which ) {
-  
-        // dismisses dialog automatically.
         
-        if( mIsRequestingPermission ) {
-          requestPermissions( new String[] { Manifest.permission.ACCESS_FINE_LOCATION}, Constants.REQUEST_PERMISSIONS_CODE );
-        }
-  
-        if( !mHasBleSupport ) {
-          getActivity().finish(); // exit activity!
+        switch( mStatus )
+        {
+          case REQUESTING_PERMISSION:
+            requestPermissions( new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, Constants.REQUEST_PERMISSIONS_CODE );
+            break;
+          
+          case NO_BLE_SUPPORT:
+            getActivity().finish(); // exit activity!
+            break;
+            
+          case TURN_SECURITY_OFF:
+            listener.onSecurityOffSelected();
+            break;
         }
         
       }
     } );
+    
+    if( mStatus == Constants.Status.TURN_SECURITY_OFF || mStatus == Constants.Status.REQUESTING_PERMISSION ) {
+      builder.setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick( DialogInterface dialog, int which ) {
+          // dismisses dialog automatically.
+        }
+      } );
+    }
     
     TextView title = dialogView.findViewById( R.id.basicDialogTitle );
     title.setText( mTitle );
     TextView body = dialogView.findViewById( R.id.basicDialogBody );
     body.setText( mBody );
     
-    if( !mHasBleSupport ) {
+    if( mStatus == Constants.Status.NO_BLE_SUPPORT ) {
       ImageView titleBackground = dialogView.findViewById( R.id.basicDialogTitleBackground );
       titleBackground.setColorFilter( getContext().getColor( R.color.colorWarningRed ) );
     }

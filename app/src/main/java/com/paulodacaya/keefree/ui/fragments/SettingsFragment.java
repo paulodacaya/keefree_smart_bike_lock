@@ -1,5 +1,6 @@
 package com.paulodacaya.keefree.ui.fragments;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -10,7 +11,19 @@ import android.widget.Toast;
 
 import com.paulodacaya.keefree.R;
 
+import io.realm.Realm;
+
 public class SettingsFragment extends PreferenceFragment {
+  
+  Realm mRealm;
+  
+  public SettingsFragment() {
+  }
+  
+  @SuppressLint( "ValidFragment" )
+  public SettingsFragment( Realm realm ) {
+    mRealm = realm;
+  }
   
   @Override
   public void onCreate( @Nullable Bundle savedInstanceState ) {
@@ -19,7 +32,7 @@ public class SettingsFragment extends PreferenceFragment {
     // Load the settings preference from an XML resource
     addPreferencesFromResource( R.xml.preference );
     
-//    // Handle App Code PreferenceScreen click
+//    // Handle App Record PreferenceScreen click
 //    PreferenceScreen preferenceScreen = (PreferenceScreen) getPreferenceManager().findPreference( this.getString( R.string.pref_key_pin_code ) );
 //    preferenceScreen.setOnPreferenceClickListener( new Preference.OnPreferenceClickListener() {
 //      @Override
@@ -32,7 +45,6 @@ public class SettingsFragment extends PreferenceFragment {
 //      }
 //    } );
     
-    
   }
   
   @Override
@@ -43,8 +55,8 @@ public class SettingsFragment extends PreferenceFragment {
   
     if( preference.getKey().equals( appCodeKey ) ) {
   
-      // App Code
-      ChangePinFragment changePinFragment = new ChangePinFragment();
+      // App Record
+      ChangePinFragment changePinFragment = new ChangePinFragment( mRealm );
       getFragmentManager().beginTransaction()
               .replace( R.id.settingsContainer, changePinFragment )
               .addToBackStack( null )

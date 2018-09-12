@@ -12,10 +12,20 @@
 
     <color name="colorPrimary">#03357e</color>
     <color name="colorPrimaryDark">#03357e</color>
+
     <color name="colorAccent">#8c9ea4</color>
+    <color name="colorAccentVariant">#9faeb3</color>
+
     <color name="colorAccentDark">#264658</color>
-    <color name="colorBlack">#000f16</color>
-    <color name="colorWarningRed">#ba4547</color>
+    <color name="colorAccentDarkVariant">#305970</color>
+
     <color name="colorSuccessGreen">#476747</color>
+    <color name="colorSuccessGreenVariant">#557b55</color>
+
+    <color name="colorGray">#545454</color>
+    <color name="colorGrayVariant">#6d6d6d</color>
+
+    <color name="colorWarningRed">#ba4547</color>
+    <color name="colorBlack">#000f16</color>
     <color name="colorWhite">#ffffff</color>
 </resources>

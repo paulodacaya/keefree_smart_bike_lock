@@ -1,12 +1,10 @@
 package com.paulodacaya.keefree.ui.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
-import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.transition.Slide;
@@ -14,16 +12,13 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.paulodacaya.keefree.R;
 import com.paulodacaya.keefree.database.Database;
-import com.paulodacaya.keefree.model.Code;
-import com.paulodacaya.keefree.model.State;
+import com.paulodacaya.keefree.model.Record;
 import com.paulodacaya.keefree.utilities.Constants;
 import com.paulodacaya.keefree.utilities.Utilities;
 
@@ -33,6 +28,7 @@ import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.realm.Realm;
 
 public class ChangePinFragment extends Fragment {
   
@@ -55,6 +51,16 @@ public class ChangePinFragment extends Fragment {
   String inputPinCode;
   String reEnteredPinCode;
   String storedPinCode;
+  
+  Realm mRealm;
+  
+  public ChangePinFragment() {
+  }
+  
+  @SuppressLint( "ValidFragment" )
+  public ChangePinFragment( Realm realm ) {
+    mRealm = realm;
+  }
   
   @Nullable
   @Override
@@ -241,16 +247,14 @@ public class ChangePinFragment extends Fragment {
       if( inputPinCode.equals( reEnteredPinCode ) ) {
         
         Utilities.setSharedPreferencePinCode( getActivity(), reEnteredPinCode ); // Save to shared preferences
-        
-        Snackbar.make( getView(), "Pin code has successfully changed.", Snackbar.LENGTH_LONG )
-                .show();
+        Utilities.promptSnackbar( getActivity(), "Successfully changed" );
         
         mPromptLabel.setText( R.string.successful_pin_code_change_prompt );
         mPromptLabel.setTextColor( successGreen );
         
         // Store in database
-        Code code = new Code( Instant.now().toEpochMilli(), Constants.APP_CODE );
-        Database.writeCode( code );
+        Record record = new Record( Constants.APP_CODE, Instant.now().toEpochMilli(), Integer.parseInt( reEnteredPinCode ) );
+        Database.writeRecord( mRealm, record );
         
         resetPinCodeFields();
         Utilities.hideKeyboard( getActivity() );
