@@ -10,8 +10,8 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_settings">Settings</string>
     
-    <string name="change_pin_code">Change pin record</string>
-    <string name="clear_pin_code">Clear pin record</string>
+    <string name="change_pin_code">Change pin code</string>
+    <string name="clear_pin_code">Clear pin code</string>
     <string name="wrong_pin_warning_message">Sorry, wrong pin record, please try again.</string>
     <string name="request_pin_message">Please enter your pin record</string>
 
@@ -30,25 +30,29 @@
         press and hold on the lock icon.]]>
     </string>
 
-    <string name="enter_previous_passcode_prompt">Enter previous pin record</string>
+    <string name="enter_previous_passcode_prompt">Enter previous pin code</string>
     <string name="clear_prompt">Clear</string>
     <string name="confirm_prompt">Confirm</string>
-    <string name="successful_pin_code_prompt">SUCCESS! Please enter NEW pin record.</string>
-    <string name="reenter_pin_code_prompt">RE-ENTER pin record. Press \"Confirm\" to finalise.</string>
+    <string name="successful_pin_code_prompt">SUCCESS! Please enter NEW pin code.</string>
+    <string name="reenter_pin_code_prompt">RE-ENTER pin code. Press \"Confirm\" to finalise.</string>
     <string name="successful_pin_code_change_prompt">
-        PIN CODE HAS BEEN SUCCESSFULLY CHANGED\nTo change again: Enter previous pin record.
+        PIN CODE HAS BEEN SUCCESSFULLY CHANGED\nTo change again: Enter previous pin code.
     </string>
-    <string name="try_again_prompt">Try again. Please enter NEW pin record.</string>
+    <string name="try_again_prompt">Try again. Please enter NEW pin code.</string>
 
     <string name="pref_key_pin_code">pin_code</string>
     <string name="pref_default_pin_code">1234</string>
-    <string name="pref_title_pin_code">App Record</string>
+    <string name="pref_title_pin_code">App Code</string>
     <string name="pref_summary_pin_code">When accessing your KEEFREE mobile application.</string>
 
     <string name="pref_key_phoneless_pin_code">phoneless_pin_code</string>
     <string name="pref_default_phoneless_pin_code">1234</string>
-    <string name="pref_title_phoneless_access_code">Phone-less Access Record</string>
+    <string name="pref_title_phoneless_access_code">Phone-less Access Code</string>
     <string name="pref_summary_phoneless_access_code">Accessing physical KEEFREE smart bike lock when your phone is not present.</string>
+
+    <string name="pref_key_credit">credit</string>
+    <string name="pref_title_credit">Credit</string>
+    <string name="pref_summmary_credit">Development information, attributes and credit to authors.</string>
 
     <string name="ble_connected">CONNECTED</string>
     <string name="ble_not_connected">NOT CONNECTED</string>
@@ -70,6 +74,9 @@
     <string name="ble_devices_sub_title">Connect to your KEEFREE smart bike lock!</string>
     <string name="loading_please_wait">Please wait…</string>
     <string name="popup_disconnect">Disconnect</string>
+    <string name="go_to_google_maps_text">Get Directions</string>
+    <string name="connect_to_keefree_title">Connect to KEEFREE</string>
+    <string name="connect_to_keefree_body">Please connect to your KEEFREE smart bike first.</string>
 
 
 </resources>

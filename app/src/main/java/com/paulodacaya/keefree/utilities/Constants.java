@@ -1,22 +1,24 @@
 package com.paulodacaya.keefree.utilities;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.UUID;
 
 
 
 public class Constants {
   
-  public enum Status { REQUESTING_PERMISSION, NO_BLE_SUPPORT, HAS_BLE_SUPPORT, TURN_SECURITY_OFF }
+  public enum Status { REQUESTING_PERMISSION, NO_BLE_SUPPORT, HAS_BLE_SUPPORT, TURN_SECURITY_OFF, CONNECT_TO_KEEFREE }
   
-  public static final int UNLOCKED = 1;
-  public static final int SECURITY_ON = 2;
-  public static final int SECURITY_OFF = 3;
-  public static final int APP_CODE = 4;
-  public static final int PHONELESS_APP_CODE = 5;
-  
+  public static final int TYPE_UNLOCKED = 1;
+  public static final int TYPE_SECURITY_ON = 2;
+  public static final int TYPE_SECURITY_OFF = 3;
+  public static final int TYPE_APP_CODE = 4;
+  public static final int TYPE_PHONELESS_APP_CODE = 5;
   
   public static final int SPLASH_DISPLAY_LENGTH = 500;
   
+  public static final String LAT_LONG_REGEX = "^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?),\\s*[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$";
   public static final String TIMEZONE_ID = "Australia/Melbourne";
   
   public static final String SETTINGS_FRAGMENT = "settings_fragment";
@@ -42,6 +44,12 @@ public class Constants {
   public static final String SEND_SECURITY_OFF = "e";
   public static final String RECEIVED_SECURITY_OFF = "security_off";
   
+  public static final long LOCATION_REQUEST_INTERVAL = 10000;
+  public static final long LOCATION_REQUEST_INTERVAL_FASTEST = 6000;
+  public static final LatLng DEFAULT_LOCATION = new LatLng( -37.751514, 144.742874 ); // PAULO's HOUSE .. TODO: remove when deploying
+  public static final float DEFAULT_ZOOM = 15;
+  public static final String PROVIDER_KEEFREE = "keefree_provider";
+  public static final String KEEFREE_TITLE = "KEEFREE location";
 }
 
 /**

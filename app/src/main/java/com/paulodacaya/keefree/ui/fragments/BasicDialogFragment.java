@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -18,8 +19,9 @@ import com.paulodacaya.keefree.utilities.Constants;
 
 public class BasicDialogFragment extends DialogFragment {
   
-  public interface onSecurityOffInterface {
+  public interface IBasicDialogFragment {
     void onSecurityOffSelected();
+    void onConnectToKeefreeSelected();
   }
   
   private String mTitle;
@@ -41,7 +43,7 @@ public class BasicDialogFragment extends DialogFragment {
   @Override
   public Dialog onCreateDialog( Bundle savedInstanceState ) {
     
-    final onSecurityOffInterface listener = (onSecurityOffInterface) getActivity();
+    final IBasicDialogFragment listener = (IBasicDialogFragment) getActivity();
   
     AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
     
@@ -67,6 +69,10 @@ public class BasicDialogFragment extends DialogFragment {
           case TURN_SECURITY_OFF:
             listener.onSecurityOffSelected();
             break;
+            
+          case CONNECT_TO_KEEFREE:
+            listener.onConnectToKeefreeSelected();
+            break;
         }
         
       }
@@ -90,9 +96,22 @@ public class BasicDialogFragment extends DialogFragment {
       ImageView titleBackground = dialogView.findViewById( R.id.basicDialogTitleBackground );
       titleBackground.setColorFilter( getContext().getColor( R.color.colorWarningRed ) );
     }
+  
+    AlertDialog dialog = builder.create();
     
+    dialog.setOnKeyListener( new DialogInterface.OnKeyListener() {
+      @Override
+      public boolean onKey( DialogInterface dialog, int keyCode, KeyEvent event ) {
+  
+        // Prevent dialog close on back press button
+        return keyCode == KeyEvent.KEYCODE_BACK;
+      }
+    } );
     
-    return builder.create();
+    dialog.setCancelable( false );
+    dialog.setCanceledOnTouchOutside( false );
+    
+    return dialog;
   }
   
 }

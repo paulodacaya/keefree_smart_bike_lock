@@ -22,8 +22,6 @@ import com.paulodacaya.keefree.model.Record;
 import com.paulodacaya.keefree.utilities.Constants;
 import com.paulodacaya.keefree.utilities.Utilities;
 
-import java.time.Instant;
-
 import butterknife.BindColor;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -249,15 +247,13 @@ public class ChangePinFragment extends Fragment {
         Utilities.setSharedPreferencePinCode( getActivity(), reEnteredPinCode ); // Save to shared preferences
         Utilities.promptSnackbar( getActivity(), "Successfully changed" );
         
-        mPromptLabel.setText( R.string.successful_pin_code_change_prompt );
-        mPromptLabel.setTextColor( successGreen );
-        
         // Store in database
-        Record record = new Record( Constants.APP_CODE, Instant.now().toEpochMilli(), Integer.parseInt( reEnteredPinCode ) );
+        Record record = new Record( Constants.TYPE_APP_CODE, Integer.parseInt( reEnteredPinCode ) );
         Database.writeRecord( mRealm, record );
         
-        resetPinCodeFields();
         Utilities.hideKeyboard( getActivity() );
+        getActivity().getFragmentManager().popBackStack();
+        //resetPinCodeFields();
         
       } else {
         

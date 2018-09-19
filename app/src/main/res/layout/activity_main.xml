@@ -27,10 +27,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <TextView
+            android:id="@+id/activityLabel"
+            android:layout_width="match_parent"
+            android:layout_height="28dp"
+            android:background="@color/colorPrimary"
+            android:fontFamily="@font/alegreya_sans_medium"
+            android:text="Most recent"
+            android:textAlignment="center"
+            android:textColor="@color/colorWhite"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Most recent" />
+
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/activitySwipeRefresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/activityLabel"
+            app:layout_constraintBottom_toBottomOf="parent" >
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/activityRecyclerView"
@@ -62,6 +79,32 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:context=".ui.MainActivity" />
+
+        <ImageView
+            android:id="@+id/goToGoogleMapsBackground"
+            android:layout_width="190dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/keefree_googlemaps_background" />
+
+        <TextView
+            android:id="@+id/goToGoogleMapsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:fontFamily="@font/alegreya_sans_medium"
+            android:text="@string/go_to_google_maps_text"
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/goToGoogleMapsBackground"
+            app:layout_constraintEnd_toEndOf="@id/goToGoogleMapsBackground"
+            app:layout_constraintStart_toStartOf="@id/goToGoogleMapsBackground"
+            app:layout_constraintTop_toTopOf="@id/goToGoogleMapsBackground" />
+
 
     </android.support.constraint.ConstraintLayout>
 

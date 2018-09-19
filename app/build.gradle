@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
 
-
 android {
     compileSdkVersion 27
     defaultConfig {
@@ -34,7 +33,12 @@ dependencies {
     implementation 'com.jakewharton:butterknife:8.8.1'
 
     implementation 'com.android.support:design:27.1.1'
+
     implementation 'com.google.android.gms:play-services-maps:15.0.1'
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
+
+    implementation 'com.github.jd-alexander:library:1.1.0'
+
     implementation 'com.android.support:support-v4:27.1.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 

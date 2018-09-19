@@ -6,12 +6,8 @@
 
     <data>
         <import type="android.view.View" />
-        <variable
-            name="record"
-            type="com.paulodacaya.keefree.model.Record" />
-        <variable
-            name="constants"
-            type="com.paulodacaya.keefree.utilities.Constants" />
+        <variable name="record" type="com.paulodacaya.keefree.model.Record" />
+        <variable name="constants" type="com.paulodacaya.keefree.utilities.Constants" />
     </data>
 
     <android.support.constraint.ConstraintLayout
@@ -30,7 +26,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:src="@{ (record.type == constants.APP_CODE) ? @drawable/bg_app_code_change : (record.type == constants.SECURITY_OFF) ? @drawable/bg_state_security_off : (record.type == constants.SECURITY_ON) ? @drawable/bg_state_security_on : @drawable/bg_state_unlocked }"
+            android:src="@{ (record.type == constants.TYPE_APP_CODE) ? @drawable/bg_app_code_change : (record.type == constants.TYPE_SECURITY_OFF) ? @drawable/bg_state_security_off : (record.type == constants.TYPE_SECURITY_ON) ? @drawable/bg_state_security_on : @drawable/bg_state_unlocked }"
             tools:srcCompat="@drawable/bg_state_security_on" />
 
         <TextView
@@ -40,7 +36,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/alegreya_sans_bold"
-            android:text="@{ (record.type == constants.APP_CODE) ? `App code changed` : (record.type == constants.SECURITY_OFF) ? `Security turned off` : (record.type == constants.SECURITY_ON) ? `Security turned on` : (record.type == constants.UNLOCKED) ? `Unlocked` : `Phone-less code changed` }"
+            android:text="@{ (record.type == constants.TYPE_APP_CODE) ? `App code changed` : (record.type == constants.TYPE_SECURITY_OFF) ? `Security turned off` : (record.type == constants.TYPE_SECURITY_ON) ? `Security turned on` : (record.type == constants.TYPE_UNLOCKED) ? `Unlocked` : `Phone-less code changed` }"
             android:textColor="@color/colorWhite"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -71,7 +67,7 @@
             android:background="@drawable/ic_info"
             app:layout_constraintEnd_toEndOf="@+id/recordImage"
             app:layout_constraintTop_toTopOf="@+id/recordImage"
-            android:visibility="@{ (record.type == constants.APP_CODE || record.type == constants.PHONELESS_APP_CODE) ? View.VISIBLE : View.INVISIBLE }" />
+            android:visibility="@{ (record.type == constants.TYPE_APP_CODE || record.type == constants.TYPE_PHONELESS_APP_CODE) ? View.VISIBLE : View.INVISIBLE }" />
 
     </android.support.constraint.ConstraintLayout>
 

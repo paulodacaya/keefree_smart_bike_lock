@@ -15,26 +15,21 @@ public class Record extends RealmObject {
   private int mType; // App code or Phone-less Access Record
   private long mTime;
   private int mCode;
-  private double mLatitude;
-  private double mLongitude;
   
   public Record() {
   }
   
-  public Record( int type, long time, int code, double latitude, double longitude ) {
+  
+  public Record( int type, int code ) {
     mType = type;
-    mTime = time;
+    mTime = System.currentTimeMillis();
     mCode = code;
-    mLatitude = latitude;
-    mLongitude = longitude;
   }
   
-  public Record( int type, long time, int code ) {
+  public Record( int type ) {
     mType = type;
-    mTime = time;
-    mCode = code;
-    mLatitude = 0.0;
-    mLongitude = 0.0;
+    mTime = System.currentTimeMillis();
+    mCode = 0;
   }
   
   public String getTime() {
@@ -67,19 +62,4 @@ public class Record extends RealmObject {
     mCode = code;
   }
   
-  public double getLatitude() {
-    return mLatitude;
-  }
-  
-  public void setLatitude( double latitude ) {
-    mLatitude = latitude;
-  }
-  
-  public double getLongitude() {
-    return mLongitude;
-  }
-  
-  public void setLongitude( double longitude ) {
-    mLongitude = longitude;
-  }
 }

@@ -50,8 +50,9 @@ public class SettingsFragment extends PreferenceFragment {
   @Override
   public boolean onPreferenceTreeClick( PreferenceScreen preferenceScreen, Preference preference ) {
     
-    String appCodeKey = this.getString( R.string.pref_key_pin_code );
-    String phonelessAccessKey = this.getString( R.string.pref_key_phoneless_pin_code );
+    String appCodeKey = getString( R.string.pref_key_pin_code );
+    String phonelessAccessKey = getString( R.string.pref_key_phoneless_pin_code );
+    String creditKey = getString( R.string.pref_key_credit );
   
     if( preference.getKey().equals( appCodeKey ) ) {
   
@@ -63,6 +64,11 @@ public class SettingsFragment extends PreferenceFragment {
               .commit();
       
     } else if( preference.getKey().equals( phonelessAccessKey ) ) {
+  
+      Toast.makeText( getActivity(), "YOLO", Toast.LENGTH_SHORT )
+              .show();
+    
+    } else if( preference.getKey().equals( creditKey ) ) {
   
       Toast.makeText( getActivity(), "YOLO", Toast.LENGTH_SHORT )
               .show();

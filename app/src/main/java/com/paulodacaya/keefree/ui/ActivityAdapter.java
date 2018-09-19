@@ -1,12 +1,13 @@
 package com.paulodacaya.keefree.ui;
 
-import android.content.Context;
+import android.app.Activity;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.paulodacaya.keefree.R;
 import com.paulodacaya.keefree.databinding.RecordListItemBinding;
@@ -16,11 +17,16 @@ import java.util.List;
 
 public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.ViewHolder> {
   
-  private Context mContext;
+  // Interface to info button click
+  public interface IActivityAdapter {
+    void onActivityListInfoButtonSelected( Record record );
+  }
+  
+  private Activity mActivity;
   private List<Record> mRecords;
   
-  public ActivityAdapter( Context context, List<Record> records ) {
-    mContext = context;
+  public ActivityAdapter( Activity activity, List<Record> records ) {
+    mActivity = activity;
     mRecords = records;
   }
   
@@ -35,7 +41,8 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.ViewHo
             false
     );
     
-    return new ViewHolder( codeBindings.getRoot() );
+    
+    return new ViewHolder( mActivity, codeBindings.getRoot() );
   }
   
   @Override
@@ -55,10 +62,26 @@ public class ActivityAdapter extends RecyclerView.Adapter<ActivityAdapter.ViewHo
   public class ViewHolder extends RecyclerView.ViewHolder {
   
     RecordListItemBinding recordListItemBinding;
+    Activity activity;
   
-    public ViewHolder( View itemView ) {
+    public ViewHolder( Activity activity, View itemView ) {
       super( itemView );
       recordListItemBinding = DataBindingUtil.bind( itemView );
+      this.activity = activity;
+      final IActivityAdapter listener = (IActivityAdapter) activity;
+      
+      // Handle info button click
+      Button infoButton = itemView.findViewById( R.id.recordInfoButton );
+      infoButton.setOnClickListener( new View.OnClickListener() {
+        @Override
+        public void onClick( View v ) {
+  
+          Record record = recordListItemBinding.getRecord();
+          listener.onActivityListInfoButtonSelected( record );
+    
+        }
+      } );
+      
     }
   
   }

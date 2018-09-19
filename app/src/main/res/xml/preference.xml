@@ -19,4 +19,11 @@
 
     </PreferenceScreen>
 
+    <PreferenceScreen
+        android:key="@string/pref_key_credit"
+        android:title="@string/pref_title_credit"
+        android:summary="@string/pref_summmary_credit" >
+
+    </PreferenceScreen>
+
 </PreferenceScreen>

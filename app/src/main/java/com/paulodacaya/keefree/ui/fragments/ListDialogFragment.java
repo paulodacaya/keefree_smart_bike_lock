@@ -40,7 +40,7 @@ import java.util.Set;
 public class ListDialogFragment extends DialogFragment {
   
   // Interface to handle clicks
-  public interface onDeviceSelectedInterface {
+  public interface IListDialogFragment {
     void onListDeviceSelected( BluetoothDevice device );
   }
   
@@ -55,7 +55,7 @@ public class ListDialogFragment extends DialogFragment {
   public Dialog onCreateDialog( Bundle savedInstanceState ) {
     
     // Create lister for interface
-    onDeviceSelectedInterface listener = (onDeviceSelectedInterface) getActivity();
+    IListDialogFragment listener = (IListDialogFragment) getActivity();
     
     AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
     
@@ -119,11 +119,11 @@ public class ListDialogFragment extends DialogFragment {
 class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.ViewHolder> {
   
   private Context mContext;
-  private ListDialogFragment.onDeviceSelectedInterface mListener;
+  private ListDialogFragment.IListDialogFragment mListener;
   private List<BleDevice> mBleDevices;
   
 
-  ScanResultAdapter( Context context, ListDialogFragment.onDeviceSelectedInterface listener, List<BleDevice> bleDevices ) {
+  ScanResultAdapter( Context context, ListDialogFragment.IListDialogFragment listener, List<BleDevice> bleDevices ) {
     mContext = context;
     mListener = listener;
     mBleDevices = bleDevices;
