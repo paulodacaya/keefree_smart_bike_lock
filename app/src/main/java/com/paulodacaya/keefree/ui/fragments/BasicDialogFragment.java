@@ -102,7 +102,6 @@ public class BasicDialogFragment extends DialogFragment {
     dialog.setOnKeyListener( new DialogInterface.OnKeyListener() {
       @Override
       public boolean onKey( DialogInterface dialog, int keyCode, KeyEvent event ) {
-  
         // Prevent dialog close on back press button
         return keyCode == KeyEvent.KEYCODE_BACK;
       }

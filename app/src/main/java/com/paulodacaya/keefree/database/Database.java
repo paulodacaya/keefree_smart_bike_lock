@@ -51,6 +51,7 @@ public class Database {
         if( keefree == null ) {
     
           Keefree newKeefree = realm.createObject( Keefree.class );
+          newKeefree.setId( 1 );
           newKeefree.setLatitude( latitude );
           newKeefree.setLongitude( longitude );
     
@@ -77,6 +78,7 @@ public class Database {
         if( keefree == null ) {
           
           Keefree newKeefree = realm.createObject( Keefree.class );
+          newKeefree.setId( 1 );
           newKeefree.setSpeed( speed );
           
         } else {
@@ -101,6 +103,7 @@ public class Database {
         if( keefree == null ) {
     
           Keefree newKeefree = realm.createObject( Keefree.class );
+          newKeefree.setId( 1 );
           newKeefree.setAltitude( altitude );
     
         } else {
@@ -122,9 +125,9 @@ public class Database {
   }
   
   public static Keefree getKeefree( final Realm realm ) {
-  
-    Keefree keefree = realm.where( Keefree.class ).equalTo( Keefree.ID, 1 ).findFirst();
-  
+    
+    Keefree keefree = realm.where( Keefree.class ).equalTo( "mId", 1 ).findFirst();
+    
     if( keefree == null ) {
       
       return null;

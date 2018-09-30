@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/onBoardingRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/colorPrimary"
+    tools:context=".ui.OnBoardingActivity">
+
+
+
+    <!--Transparent divider line-->
+    <android.support.v4.view.ViewPager
+        android:id="@+id/onBoardingViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="?android:attr/actionBarSize" />
+
+    <View
+        android:id="@+id/dividerLine"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:alpha="0.12"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="?android:attr/actionBarSize"
+        android:background="@android:color/white" />
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_gravity="bottom" >
+
+        <android.support.constraint.Guideline
+            android:id="@+id/introLeftGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.2" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/introRightGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.8" />
+
+        <Button
+            android:id="@+id/onBoardingSkipButton"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/alegreya_sans_bold"
+            android:text="@string/onboarding_skip_text"
+            android:textColor="@color/colorWhite"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/introLeftGuideline"
+            app:layout_constraintStart_toStartOf="@+id/introLeftGuideline"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:paddingTop="2.5dp"
+            android:paddingLeft="2.5dp">
+
+            <ImageView
+                android:id="@+id/onBoardingIndicator1"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginRight="3dp"
+                app:srcCompat="@drawable/ic_indicator_unselected" />
+
+            <ImageView
+                android:id="@+id/onBoardingIndicator2"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginRight="3dp"
+                app:srcCompat="@drawable/ic_indicator_unselected" />
+
+            <ImageView
+                android:id="@+id/onBoardingIndicator3"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginRight="3dp"
+                app:srcCompat="@drawable/ic_indicator_unselected" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/onBoardingNextButton"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/alegreya_sans_bold"
+            android:text="@string/onboarding_next_text"
+            android:textColor="@color/colorWhite"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/introRightGuideline"
+            app:layout_constraintEnd_toEndOf="@id/introRightGuideline"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="visible" />
+
+        <Button
+            android:id="@+id/onBoardingFinishButton"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/alegreya_sans_bold"
+            android:text="@string/onboarding_finish_text"
+            android:textColor="@color/colorWhite"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/introRightGuideline"
+            app:layout_constraintEnd_toEndOf="@id/introRightGuideline"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="invisible" />
+
+
+    </android.support.constraint.ConstraintLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>

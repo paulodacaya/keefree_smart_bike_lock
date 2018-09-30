@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/onBoardingFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/onBoardingCenterGuideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.4" />
+
+    <ImageView
+        android:id="@+id/onBoardingImage"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:layout_marginBottom="64dp"
+        android:src="@drawable/keefree_onboarding_three"
+        app:layout_constraintTop_toTopOf="@id/onBoardingCenterGuideline"
+        app:layout_constraintBottom_toBottomOf="@id/onBoardingCenterGuideline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/onBoardingTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/alegreya_sans_bold"
+        android:textAllCaps="true"
+        android:textColor="@color/colorWhite"
+        android:textSize="32sp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/onBoardingBody"
+        tools:text="HEADING" />
+
+    <TextView
+        android:id="@+id/onBoardingBody"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+        android:layout_marginLeft="64dp"
+        android:layout_marginRight="64dp"
+        android:fontFamily="@font/alegreya_sans"
+        android:lineSpacingExtra="2sp"
+        android:textAlignment="center"
+        android:textColor="@color/colorWhite"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:text="Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book." />
+</android.support.constraint.ConstraintLayout>

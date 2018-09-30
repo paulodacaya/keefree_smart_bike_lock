@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class Constants {
   
-  public enum Status { REQUESTING_PERMISSION, NO_BLE_SUPPORT, HAS_BLE_SUPPORT, TURN_SECURITY_OFF, CONNECT_TO_KEEFREE }
+  public enum Status { REQUESTING_PERMISSION, NO_BLE_SUPPORT, NORMAL, TURN_SECURITY_OFF, CONNECT_TO_KEEFREE, UNLOCKING_KEEFREE }
   
   public static final int TYPE_UNLOCKED = 1;
   public static final int TYPE_SECURITY_ON = 2;
@@ -16,7 +16,7 @@ public class Constants {
   public static final int TYPE_APP_CODE = 4;
   public static final int TYPE_PHONELESS_APP_CODE = 5;
   
-  public static final int SPLASH_DISPLAY_LENGTH = 500;
+  public static final int SPLASH_DISPLAY_LENGTH = 500; // 0.5 seconds
   
   public static final String LAT_LONG_REGEX = "^[-+]?([1-8]?\\d(\\.\\d+)?|90(\\.0+)?),\\s*[-+]?(180(\\.0+)?|((1[0-7]\\d)|([1-9]?\\d))(\\.\\d+)?)$";
   public static final String TIMEZONE_ID = "Australia/Melbourne";
@@ -34,6 +34,11 @@ public class Constants {
   public static final String BLE_DEVICE_MAC_ADDRESS = "00:15:80:90:72:E7";
   public static final UUID BLE_DEVICE_SERVICE_UUID = UUID.fromString( "0000ffe0-0000-1000-8000-00805f9b34fb" );
   public static final UUID BLE_DEVICE_CHARACTERISTICS_UUID = UUID.fromString( "0000ffe1-0000-1000-8000-00805f9b34fb" );
+  
+  public static final int SENDING_MESSAGE_TIMEOUT = 8000; // 8 seconds
+  
+  public static final String SEND_CONNECTED = "c";
+  public static final String RECEIVED_CONNECTED = "connected";
   
   public static final String SEND_UNLOCK = "u";
   public static final String RECEIVED_UNLOCK = "unlock";

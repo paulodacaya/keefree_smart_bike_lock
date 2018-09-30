@@ -9,7 +9,7 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_settings">Settings</string>
-    
+
     <string name="change_pin_code">Change pin code</string>
     <string name="clear_pin_code">Clear pin code</string>
     <string name="wrong_pin_warning_message">Sorry, wrong pin record, please try again.</string>
@@ -24,7 +24,7 @@
     <string name="actionbar_title_location">LOCATION</string>
     <string name="actionbar_title_activity">ACTIVITY</string>
     <string name="actionbar_title_settings">SETTINGS</string>
-    
+
     <string name="how_to_unlock_and_lock_message">
         <![CDATA[To unlock your KEEFREE smart bike lock\n
         press and hold on the lock icon.]]>
@@ -39,6 +39,10 @@
         PIN CODE HAS BEEN SUCCESSFULLY CHANGED\nTo change again: Enter previous pin code.
     </string>
     <string name="try_again_prompt">Try again. Please enter NEW pin code.</string>
+
+    <string name="pref_key_is_first_time_user">is_first_time_user</string>
+    <string name="pref_is_first_time_user_false">false</string>
+    <string name="pref_is_first_time_user_true">true</string>
 
     <string name="pref_key_pin_code">pin_code</string>
     <string name="pref_default_pin_code">1234</string>
@@ -77,6 +81,21 @@
     <string name="go_to_google_maps_text">Get Directions</string>
     <string name="connect_to_keefree_title">Connect to KEEFREE</string>
     <string name="connect_to_keefree_body">Please connect to your KEEFREE smart bike first.</string>
+    <string name="timed_out_title">Timed Out...</string>
+    <string name="timed_out_body">Did not receive successful message from your KEEFREE. May need to try again.</string>
+    <string name="unlocking_loading_dialog_text">Unlocking for 5 seconds...</string>
+    <string name="title_activity_on_boarding">OnBoardingActivity</string>
+    <string name="action_settings">Settings</string>\
+
+    <string name="onboarding_skip_text">Skip</string>
+    <string name="onboarding_next_text">Next</string>
+    <string name="onboarding_finish_text">Finish</string>
+    <string name="onboarding_connect_title">CONNECT</string>
+    <string name="onboarding_connect_body">Connect to your personal KEEFREE smart bike lock by clicking on the linking icon. Located on top-left of keefree section.</string>
+    <string name="onboarding_security_title">SECURITY</string>
+    <string name="onboarding_track_title">TRACK</string>
+    <string name="onboarding_security_body">Turn security on when you have connected. This activates theft detection, alarms and notifications.</string>
+    <string name="onboarding_track_body">Track the location of your KEEFREE smart bike lock! Open Google maps to direct yourself in case you forget!</string>
 
 
 </resources>

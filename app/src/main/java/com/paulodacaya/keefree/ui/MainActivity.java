@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -88,28 +89,14 @@ import butterknife.OnClick;
 import butterknife.OnLongClick;
 import io.realm.Realm;
 
-
 /**
- * Tasks TODO
+ * * TODO
  * * Handle most messages returned from Arduino
- * * Store information to database and display in activity
- * <p>
- * <p>
- * * Handle a timeout of unlocking, security ON and security OFF when no message is return from Arduino.
- * * Edge case: disconnection when sending/receiving messages.
- * <p>
- * <p>
- * MAPS
- * * Display line path connecting both points (THICK BLACK LINE)
- * * Information icon button to display relative info ( distance:KM, etc. )
- * * "Open on Google Maps" button to auto
- * <p>
- * <p>
+ *
  * STRETCH GOALS
- * * onBoarding for first time users.
- * * Auto connect to device when have connected previously.
- * * Use database to manage if connected previously?
+ * * Auto connect to device when have connected previously. Use database to manage if connected previously?
  */
+
 public class MainActivity extends AppCompatActivity
         implements OnMapReadyCallback, RoutingListener, ListDialogFragment.IListDialogFragment,
         BasicDialogFragment.IBasicDialogFragment, ActivityAdapter.IActivityAdapter {
@@ -133,9 +120,10 @@ public class MainActivity extends AppCompatActivity
   @BindView( R.id.securityPrompt ) TextView mSecurityPrompt;
   @BindView( R.id.securityProgressBar ) ProgressBar mSecurityProgressBar;
   @BindView( R.id.activityRecyclerView ) RecyclerView mActivityRecyclerView;
-  ImageView mActionReloadImage;
   
-  Vibrator mVibrator;
+  private ImageView mActionReloadImage;
+  
+  private Vibrator mVibrator;
   
   private Realm mRealm;
   Keefree mKeefree;
@@ -190,12 +178,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onScanResult( int callbackType, ScanResult scanResult ) {
       super.onScanResult( callbackType, scanResult );
-      
-      List<ParcelUuid> Uuids = scanResult.getScanRecord()
-              .getServiceUuids();
-      for( ParcelUuid uuid : Uuids ) {
-        Log.d( TAG, "UUID:" + uuid.toString() );
-      }
+  
+      /**
+       * Use this to find the UUID associated with the scanned result
+       * Mainly used to find Service UUID
+       * Can use these methods for dynamic searching and requesting
+       */
+//      List<ParcelUuid> Uuids = scanResult.getScanRecord().getServiceUuids();
+//      for( ParcelUuid uuid : Uuids ) {
+//        Log.d( TAG, "UUID:" + uuid.toString() );
+//      }
       
       // Add scanned device to dialog
       mScannedDevicesDialog.addDevice( scanResult.getDevice() );
@@ -207,7 +199,7 @@ public class MainActivity extends AppCompatActivity
       super.onScanFailed( errorCode );
       
       // Prompt failure to scan
-      promptBasicDialog( getString( R.string.ble_scan_failed_title ), getString( R.string.ble_scan_failed_body ) + "\nError code: " + errorCode, Constants.Status.HAS_BLE_SUPPORT );
+      promptBasicDialog( getString( R.string.ble_scan_failed_title ), getString( R.string.ble_scan_failed_body ) + "\nError code: " + errorCode, Constants.Status.NORMAL );
       
     }
   };
@@ -220,8 +212,13 @@ public class MainActivity extends AppCompatActivity
     public void onConnectionStateChange( BluetoothGatt gatt, int status, int newState ) {
       
       if( newState == BluetoothProfile.STATE_CONNECTED ) {
-        
+  
+        Log.d( TAG, "Connected to keefree device..." );
         mConnectionState = STATE_CONNECTED;
+        
+        Log.d( TAG, "Discovering services..." );
+        mBluetoothGatt.discoverServices();
+        
         
         runOnUiThread( new Runnable() {
           @Override
@@ -231,9 +228,6 @@ public class MainActivity extends AppCompatActivity
           }
         } );
         
-        Log.d( TAG, "Connected to keefree device..." );
-        mBluetoothGatt.discoverServices();
-        Log.d( TAG, "Discovering services..." );
         
       } else if( newState == BluetoothProfile.STATE_DISCONNECTED ) {
         
@@ -259,17 +253,28 @@ public class MainActivity extends AppCompatActivity
       if( status == BluetoothGatt.GATT_SUCCESS ) {
         
         BluetoothGattService service = gatt.getService( Constants.BLE_DEVICE_SERVICE_UUID );
-        
-        List<BluetoothGattCharacteristic> bluetoothGattCharacteristics = service.getCharacteristics();
-        for( BluetoothGattCharacteristic characteristic : bluetoothGattCharacteristics ) {
-          Log.d( TAG, characteristic.getUuid()
-                  .toString() );
-        }
+  
+        /**
+         * Use this to find the characteristic UUID from Service UUID
+         */
+//        List<BluetoothGattCharacteristic> bluetoothGattCharacteristics = service.getCharacteristics();
+//        for( BluetoothGattCharacteristic characteristic : bluetoothGattCharacteristics ) {
+//          Log.d( TAG, characteristic.getUuid()
+//                  .toString() );
+//        }
         
         BluetoothGattCharacteristic characteristic = service.getCharacteristic( Constants.BLE_DEVICE_CHARACTERISTICS_UUID );
         
         characteristic.setWriteType( BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT );
         mIsInitialised = gatt.setCharacteristicNotification( characteristic, true );
+        
+        // Send unlock message
+        runOnUiThread( new Runnable() {
+          @Override
+          public void run() {
+            sendCharacter( Constants.SEND_CONNECTED );
+          }
+        } );
         
       } else {
         
@@ -326,7 +331,6 @@ public class MainActivity extends AppCompatActivity
     public void onCharacteristicChanged( BluetoothGatt gatt, BluetoothGattCharacteristic characteristic ) {
       super.onCharacteristicChanged( gatt, characteristic );
       
-      
       byte[] bytes = characteristic.getValue();
       String message = null;
       
@@ -335,13 +339,13 @@ public class MainActivity extends AppCompatActivity
         message = new String( bytes, "UTF-8" );
         
         if( message.equals( Constants.RECEIVED_UNLOCK ) ) {
-          
+  
           mLoadingDialog.dismiss();
-          Database.writeRecord( mRealm, new Record( Constants.TYPE_UNLOCKED ) );
           
           runOnUiThread( new Runnable() {
             @Override
             public void run() {
+              Database.writeRecord( mRealm, new Record( Constants.TYPE_UNLOCKED ) );
               toggleLockingImage();
             }
           } );
@@ -350,11 +354,12 @@ public class MainActivity extends AppCompatActivity
           
           mIsSecurityOn = true;
           mLoadingDialog.dismiss();
-          Database.writeRecord( mRealm, new Record( Constants.TYPE_SECURITY_ON ) );
+          
           
           runOnUiThread( new Runnable() {
             @Override
             public void run() {
+              Database.writeRecord( mRealm, new Record( Constants.TYPE_SECURITY_ON ) );
               showSecurityOn();
             }
           } );
@@ -363,11 +368,11 @@ public class MainActivity extends AppCompatActivity
           
           mIsSecurityOn = false;
           mLoadingDialog.dismiss();
-          Database.writeRecord( mRealm, new Record( Constants.TYPE_SECURITY_OFF ) );
           
           runOnUiThread( new Runnable() {
             @Override
             public void run() {
+              Database.writeRecord( mRealm, new Record( Constants.TYPE_SECURITY_OFF ) );
               showSecurityOff();
             }
           } );
@@ -375,27 +380,46 @@ public class MainActivity extends AppCompatActivity
         } else if( message.matches( Constants.LAT_LONG_REGEX ) ) {
           
           // Split string from "," and store into variable
-          String[] latLon = message.split( "," );
-          Database.writeKeefreeLocation( mRealm, Double.parseDouble( latLon[0] ), Double.parseDouble( latLon[1] ) );
+          final String[] latLon = message.split( "," );
           
           // Update Map UI with
           if( mKeefree != null ) {
             mKeefreeMarker.remove();
           }
           
-          showKeeFreeLocation();
+          runOnUiThread( new Runnable() {
+            @Override
+            public void run() {
+              Database.writeKeefreeLocation( mRealm, Double.parseDouble( latLon[0] ), Double.parseDouble( latLon[1] ) );
+              mKeefree = Database.getKeefree( mRealm );
+              showKeeFreeLocation();
+            }
+          } );
+          
           
         } else if( message.endsWith( "kmph" ) ) {
           
           // Speed of keefree (kmph)
-          float speedFloat = Float.parseFloat( message.replaceFirst( "kmph", "" ) );
-          Database.writeKeefreeSpeed( mRealm, speedFloat );
+          final float speedFloat = Float.parseFloat( message.replaceFirst( "kmph", "" ) );
+          
+          runOnUiThread( new Runnable() {
+            @Override
+            public void run() {
+              Database.writeKeefreeSpeed( mRealm, speedFloat );
+            }
+          } );
           
         } else if( message.endsWith( "m" ) ) {
           
           // Altitude of keefree (measurement above sea level)
-          double altitudeDouble = Double.parseDouble( message.replaceFirst( "m", "" ) );
-          Database.writeKeefreeAltitude( mRealm, altitudeDouble );
+          final double altitudeDouble = Double.parseDouble( message.replaceFirst( "m", "" ) );
+          
+          runOnUiThread( new Runnable() {
+            @Override
+            public void run() {
+              Database.writeKeefreeAltitude( mRealm, altitudeDouble );
+            }
+          } );
           
         }
         
@@ -403,6 +427,10 @@ public class MainActivity extends AppCompatActivity
         error.printStackTrace();
       }
       
+      // Cancel timeout delay handler because a messages was successfully received
+      mHandler.removeCallbacksAndMessages( null );
+      
+      // Log message received to
       Log.d( TAG, "onCharacteristicChanged : '" + message + "'" );
       
     }
@@ -465,7 +493,7 @@ public class MainActivity extends AppCompatActivity
       Log.d( TAG, "Device has bluetooth support and is active..." );
     }
   
-    if( !mRequestingLocationUpdates ) {
+    if( mRequestingLocationUpdates ) {
       
       Log.d( TAG, "Started Location Updates..." );
       startLocationUpdates();
@@ -544,6 +572,7 @@ public class MainActivity extends AppCompatActivity
         mActivityContainer.setVisibility( View.INVISIBLE );
         mActionReloadImage.setVisibility( View.INVISIBLE );
         
+        mKeefree = Database.getKeefree( mRealm );
         if( mKeefree == null ) {
           promptBasicDialog( getString( R.string.connect_to_keefree_title ), getString( R.string.connect_to_keefree_body ), Constants.Status.CONNECT_TO_KEEFREE );
         }
@@ -671,7 +700,10 @@ public class MainActivity extends AppCompatActivity
       // Check if location permission was granted
       if( grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED ) {
         
-        // TODO: Maybe scanForBLEDevice? Though it may not be wanted.
+        // request methods that need permission
+        updateLocationUI();
+        getDeviceLocation();
+        startLocationUpdates();
         
       }
       
@@ -743,7 +775,7 @@ public class MainActivity extends AppCompatActivity
             
           } else {
             
-            promptBasicDialog( getString( R.string.ble_no_devices_found_title ), getString( R.string.ble_no_devices_found_body ), Constants.Status.HAS_BLE_SUPPORT );
+            promptBasicDialog( getString( R.string.ble_no_devices_found_title ), getString( R.string.ble_no_devices_found_body ), Constants.Status.NORMAL );
             
           }
           
@@ -788,15 +820,13 @@ public class MainActivity extends AppCompatActivity
   public void onMapReady( GoogleMap googleMap ) {
     
     mMap = googleMap;
+    setLocationRequest();  // Location callback settings
+    showKeeFreeLocation(); // Show keefree location if data is available
     
-    updateLocationUI();    // adds UI elements to google map e.g. focus location.
-    
-    setLocationRequest();  // Location Callback settings
+    // These methods need permission
+    updateLocationUI();
     getDeviceLocation();
-    
     startLocationUpdates();
-    
-    showKeeFreeLocation();
     
   }
   
@@ -829,7 +859,6 @@ public class MainActivity extends AppCompatActivity
         mMap.getUiSettings()
                 .setMyLocationButtonEnabled( false );
         mCurrentLocation = null;
-        requestPermissions();
         
       }
       
@@ -898,25 +927,34 @@ public class MainActivity extends AppCompatActivity
   
   private void drawRouteToKeeFree() {
     
-    LatLng defaultLatLon = Constants.DEFAULT_LOCATION;
-    
-    Routing routing = new Routing.Builder().travelMode( Routing.TravelMode.WALKING )
-            .withListener( this )
-            .alternativeRoutes( false )
-            .waypoints( new LatLng( mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude() ), new LatLng( defaultLatLon.latitude, defaultLatLon.longitude ) )
-            .build();
-    
-    routing.execute();
+    if( mCurrentLocation != null && mKeefree != null ) {
+      
+      Log.d( TAG, "Trying to draw route to Keefree from Current Location" );
+      
+      Routing routing = new Routing.Builder().travelMode( Routing.TravelMode.WALKING )
+              .withListener( this )
+              .alternativeRoutes( false )
+              .waypoints( new LatLng( mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude() ),
+                          new LatLng( mKeefree.getLongitude(), mKeefree.getLatitude() ) )
+              .build();
+  
+      routing.execute();
+      
+    }
     
   }
   
   private void clearPolyLines() {
     
-    for( Polyline polyline : mPolylines ) {
-      polyline.remove();
+    if( mPolylines.size() > 0 ) {
+  
+      for( Polyline polyline : mPolylines ) {
+        polyline.remove();
+      }
+  
+      mPolylines.clear();
+  
     }
-    
-    mPolylines.clear();
     
   }
   
@@ -925,6 +963,7 @@ public class MainActivity extends AppCompatActivity
     
     if( hasPermissions() ) {
       
+      Log.d( TAG, "Started Location Updates" );
       mRequestingLocationUpdates = true;
       mFusedLocationProviderClient.requestLocationUpdates( mLocationRequest, mLocationCallback, null );
       
@@ -934,6 +973,7 @@ public class MainActivity extends AppCompatActivity
   
   private void stopLocationUpdates() {
     
+    Log.d( TAG, "Stopped Location Updates" );
     mRequestingLocationUpdates = false;
     mFusedLocationProviderClient.removeLocationUpdates( mLocationCallback );
     
@@ -1038,8 +1078,9 @@ public class MainActivity extends AppCompatActivity
       return;
     }
     
+    
     showSecurityLoading();
-    promptLoadingDialog();
+    promptLoadingDialog( Constants.Status.NORMAL );
     sendCharacter( Constants.SEND_SECURITY_ON );
   }
   
@@ -1048,7 +1089,8 @@ public class MainActivity extends AppCompatActivity
     
     if( mConnectionState == STATE_CONNECTED && mIsInitialised ) {
       
-      promptLoadingDialog();
+      toggleLockingImage();
+      promptLoadingDialog( Constants.Status.UNLOCKING_KEEFREE );
       sendCharacter( Constants.SEND_UNLOCK );
       
     } else {
@@ -1115,9 +1157,30 @@ public class MainActivity extends AppCompatActivity
     
   }
   
-  private void promptLoadingDialog() {
+  private void promptLoadingDialog( final Constants.Status status ) {
+  
+    mHandler.postDelayed( new Runnable() {
+      @Override
+      public void run() {
+        
+        // toggle image back to normal
+        if( status == Constants.Status.UNLOCKING_KEEFREE )
+        {
+          toggleLockingImage();
+        }
+        
+        // Dismiss loading dialog and prompt time out dialog if reaches here
+        mLoadingDialog.dismiss();
+      
+        promptBasicDialog( getString( R.string.timed_out_title),
+                getString( R.string.timed_out_body),
+                Constants.Status.NORMAL );
+      
+      }
+    }, Constants.SENDING_MESSAGE_TIMEOUT );
     
-    mLoadingDialog = new LoadingDialogFragment();
+    
+    mLoadingDialog = new LoadingDialogFragment( status );
     mLoadingDialog.show( getSupportFragmentManager(), Constants.TAG_LOADING_DIALOG );
     
   }
@@ -1211,7 +1274,7 @@ public class MainActivity extends AppCompatActivity
   public void onSecurityOffSelected() {
     
     showSecurityLoading();
-    promptLoadingDialog();
+    promptLoadingDialog( Constants.Status.NORMAL );
     sendCharacter( Constants.SEND_SECURITY_OFF );
     
   }
@@ -1246,7 +1309,7 @@ public class MainActivity extends AppCompatActivity
     switch( record.getType() ) {
       
       case Constants.TYPE_APP_CODE:
-        promptBasicDialog( "App Code Changed", "Code was changed to: " + record.getCode() + "\nOn the " + record.getTime(), Constants.Status.HAS_BLE_SUPPORT );
+        promptBasicDialog( "App Code Changed", "Code was changed to: " + record.getCode() + "\nOn the " + record.getTime(), Constants.Status.NORMAL );
         break;
       
       case Constants.TYPE_PHONELESS_APP_CODE:
@@ -1262,6 +1325,7 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void onRoutingFailure( RouteException e ) {
     
+    Log.d( TAG, "Routing drawing failed: exeception - " + e.getMessage() );
     // NOTE: 2,500 request per day is allows or you MUST PAY for more
     // Utilities.promptSnackbar( MainActivity.this, "Error: Cannot draw route. Google Directions API error." );
     
@@ -1275,12 +1339,13 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void onRoutingSuccess( ArrayList<Route> routes, int shortestRouteIndex ) {
     
-    runOnUiThread( new Runnable() {
-      @Override
-      public void run() {
-        clearPolyLines();
-      }
-    } );
+//    runOnUiThread( new Runnable() {
+//      @Override
+//      public void run() {
+//        clearPolyLines();
+//      }
+//    } );
+    Log.d( TAG, "Drawing lines" );
     
     mPolylines = new ArrayList<>();
     

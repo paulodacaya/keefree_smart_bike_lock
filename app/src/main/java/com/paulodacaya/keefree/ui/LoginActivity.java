@@ -132,10 +132,22 @@ public class LoginActivity extends AppCompatActivity {
         String storedPinCode = Utilities.getSharedPreferencePinCode( LoginActivity.this );
         
         if( inputPinCode.equals( storedPinCode ) ) {
-          
+  
           Utilities.hideKeyboard( LoginActivity.this );
-          Intent intent = new Intent( LoginActivity.this, MainActivity.class );
-          startActivity( intent );
+          
+          // Send user to onBoarding Activity if its users first time
+          if( Utilities.getSharedPreferenceIsFirstTimeUser( LoginActivity.this ).equals( "true" ) ) {
+  
+            Intent intent = new Intent( LoginActivity.this, OnBoardingActivity.class );
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation( LoginActivity.this );
+            startActivity( intent, options.toBundle() );
+          
+          } else {
+  
+            Intent intent = new Intent( LoginActivity.this, MainActivity.class );
+            startActivity( intent );
+            
+          }
           
         } else {
           

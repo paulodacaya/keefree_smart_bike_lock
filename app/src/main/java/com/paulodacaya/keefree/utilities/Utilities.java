@@ -32,12 +32,30 @@ public class Utilities {
     return value;
   }
   
+  public static String getSharedPreferenceIsFirstTimeUser( Context context ) {
+    
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( context );
+    
+    String value = sharedPreferences.getString( context.getString( R.string.pref_key_is_first_time_user ),
+            context.getString( R.string.pref_is_first_time_user_true ) );
+    
+    return value;
+  }
+  
   public static void setSharedPreferencePinCode( Context context, String newPinCode ) {
     
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( context );
     SharedPreferences.Editor editor = sharedPreferences.edit();
     
     editor.putString( context.getString( R.string.pref_key_pin_code ), newPinCode ).apply();
+  }
+  
+  public static void setSharedPreferenceIsFirstTimeUserToFalse( Context context ) {
+    
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( context );
+    SharedPreferences.Editor editor = sharedPreferences.edit();
+    
+    editor.putString( context.getString( R.string.pref_key_is_first_time_user ), context.getString( R.string.pref_is_first_time_user_false ) ).apply();
   }
   
   public static void promptSnackbar( Activity activity, String message ) {
