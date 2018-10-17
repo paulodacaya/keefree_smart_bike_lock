@@ -96,6 +96,7 @@
     <string name="onboarding_track_title">TRACK</string>
     <string name="onboarding_security_body">Turn security on when you have connected. This activates theft detection, alarms and notifications.</string>
     <string name="onboarding_track_body">Track the location of your KEEFREE smart bike lock! Open Google maps to direct yourself in case you forget!</string>
+    <string name="turn_buzzer_off">TURN BUZZER OFF</string>
 
 
 </resources>

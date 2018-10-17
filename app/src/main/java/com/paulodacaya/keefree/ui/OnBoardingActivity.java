@@ -40,23 +40,9 @@ public class OnBoardingActivity extends AppCompatActivity {
   
   private ViewPagerAdapter mViewPagerAdapter;
   
-  private final int[] slideImages = new int[] {
-          R.drawable.keefree_onboarding_one,
-          R.drawable.keefree_onboarding_two,
-          R.drawable.keefree_onboarding_three
-  };
-  
-  private final String[] slideTitles = new String[] {
-          getString( R.string.onboarding_connect_title ),
-          getString( R.string.onboarding_security_title ),
-          getString( R.string.onboarding_track_title )
-  };
-  
-  private final String[] slideBodys = new String[] {
-          getString( R.string.onboarding_connect_body ),
-          getString( R.string.onboarding_security_body ),
-          getString( R.string.onboarding_track_body )
-  };
+  private int[] slideImages;
+  private String[] slideTitles;
+  private String[] slideBodys;
   
   
   @Override
@@ -64,6 +50,26 @@ public class OnBoardingActivity extends AppCompatActivity {
     super.onCreate( savedInstanceState );
     setContentView( R.layout.activity_on_boarding );
     ButterKnife.bind( this );
+  
+    slideImages = new int[] {
+            R.drawable.keefree_onboarding_one,
+            R.drawable.keefree_onboarding_two,
+            R.drawable.keefree_onboarding_three
+    };
+    
+    slideTitles = new String[] {
+            getString( R.string.onboarding_connect_title ),
+            getString( R.string.onboarding_security_title ),
+            getString( R.string.onboarding_track_title )
+    };
+  
+    slideBodys = new String[] {
+            getString( R.string.onboarding_connect_body ),
+            getString( R.string.onboarding_security_body ),
+            getString( R.string.onboarding_track_body )
+    };
+    
+    
     
     // set Transitions
     setupTransitions();

@@ -136,7 +136,7 @@ public class LoginActivity extends AppCompatActivity {
           Utilities.hideKeyboard( LoginActivity.this );
           
           // Send user to onBoarding Activity if its users first time
-          if( Utilities.getSharedPreferenceIsFirstTimeUser( LoginActivity.this ).equals( "true" ) ) {
+          if( Utilities.getSharedPreferenceIsFirstTimeUser( LoginActivity.this ).equals( getString( R.string.pref_is_first_time_user_true ) ) ) {
   
             Intent intent = new Intent( LoginActivity.this, OnBoardingActivity.class );
             ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation( LoginActivity.this );
@@ -144,8 +144,12 @@ public class LoginActivity extends AppCompatActivity {
           
           } else {
   
-            Intent intent = new Intent( LoginActivity.this, MainActivity.class );
-            startActivity( intent );
+            Intent intent = new Intent( LoginActivity.this, OnBoardingActivity.class );
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation( LoginActivity.this );
+            startActivity( intent, options.toBundle() );
+            
+//            Intent intent = new Intent( LoginActivity.this, MainActivity.class );
+//            startActivity( intent );
             
           }
           

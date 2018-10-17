@@ -20,11 +20,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ParcelUuid;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -101,7 +99,7 @@ public class MainActivity extends AppCompatActivity
         implements OnMapReadyCallback, RoutingListener, ListDialogFragment.IListDialogFragment,
         BasicDialogFragment.IBasicDialogFragment, ActivityAdapter.IActivityAdapter {
   
-  public static final String TAG = MainActivity.class.getSimpleName();
+  public static final String TAG = MainActivity.class.getSimpleName() + " KEEFREE";
   
   @BindView( R.id.activitySwipeRefresh ) SwipeRefreshLayout mActivitySwipeRefresh;
   @BindView( R.id.bottomNavigation ) BottomNavigationView mBottomNavigationView;
@@ -118,6 +116,8 @@ public class MainActivity extends AppCompatActivity
   @BindView( R.id.shieldImage ) ImageView mShieldImage;
   @BindView( R.id.securityImage ) ImageView mSecurityImage;
   @BindView( R.id.securityPrompt ) TextView mSecurityPrompt;
+  @BindView( R.id.buzzerOffImage ) ImageView mBuzzerOffImage;
+  @BindView( R.id.buzzerOffPrompt ) TextView mBuzzerOffPrompt;
   @BindView( R.id.securityProgressBar ) ProgressBar mSecurityProgressBar;
   @BindView( R.id.activityRecyclerView ) RecyclerView mActivityRecyclerView;
   
@@ -339,13 +339,13 @@ public class MainActivity extends AppCompatActivity
         message = new String( bytes, "UTF-8" );
         
         if( message.equals( Constants.RECEIVED_UNLOCK ) ) {
-  
-          mLoadingDialog.dismiss();
           
           runOnUiThread( new Runnable() {
             @Override
             public void run() {
               Database.writeRecord( mRealm, new Record( Constants.TYPE_UNLOCKED ) );
+  
+              mLoadingDialog.dismiss();
               toggleLockingImage();
             }
           } );
@@ -353,44 +353,65 @@ public class MainActivity extends AppCompatActivity
         } else if( message.equals( Constants.RECEIVED_SECURITY_ON ) ) {
           
           mIsSecurityOn = true;
-          mLoadingDialog.dismiss();
-          
           
           runOnUiThread( new Runnable() {
             @Override
             public void run() {
               Database.writeRecord( mRealm, new Record( Constants.TYPE_SECURITY_ON ) );
+  
+              mLoadingDialog.dismiss();
               showSecurityOn();
+              showBuzzerOff();
             }
           } );
           
         } else if( message.equals( Constants.RECEIVED_SECURITY_OFF ) ) {
           
           mIsSecurityOn = false;
-          mLoadingDialog.dismiss();
           
           runOnUiThread( new Runnable() {
             @Override
             public void run() {
               Database.writeRecord( mRealm, new Record( Constants.TYPE_SECURITY_OFF ) );
+  
+              mLoadingDialog.dismiss();
               showSecurityOff();
+              hideBuzzerOff();
             }
           } );
           
-        } else if( message.matches( Constants.LAT_LONG_REGEX ) ) {
+        } else if( message.equals( Constants.RECEIVED_BUZZER_OFF ) ) {
+  
+          runOnUiThread( new Runnable() {
+            @Override
+            public void run() {
+              
+              mLoadingDialog.dismiss();
+              
+            }
+          } );
+  
+        } else if( message.contains( "," ) ) {
           
           // Split string from "," and store into variable
           final String[] latLon = message.split( "," );
           
-          // Update Map UI with
-          if( mKeefree != null ) {
-            mKeefreeMarker.remove();
-          }
+          final double lat = Double.parseDouble( latLon[0] ) / Math.pow( 10.0, 6.0 );
+          final double lon = Double.parseDouble( latLon[1] ) / Math.pow( 10.0, 6.0 );
+  
+          Log.d( TAG,  "LAT: " + lat + ", LON: " + lon );
           
           runOnUiThread( new Runnable() {
             @Override
             public void run() {
-              Database.writeKeefreeLocation( mRealm, Double.parseDouble( latLon[0] ), Double.parseDouble( latLon[1] ) );
+  
+              // Remove previous marker if existent
+              if( mKeefree != null ) {
+                mKeefreeMarker.remove();
+              }
+              
+              Database.writeKeefreeLocation( mRealm, lat, lon );
+              
               mKeefree = Database.getKeefree( mRealm );
               showKeeFreeLocation();
             }
@@ -445,7 +466,7 @@ public class MainActivity extends AppCompatActivity
     mVibrator = (Vibrator) getSystemService( Context.VIBRATOR_SERVICE );
     
     // OPEN REALM DATABASE
-    Realm.deleteRealm( Database.getRealmConfiguration() ); // TODO: remove when deploying.
+//    Realm.deleteRealm( Database.getRealmConfiguration() ); // TODO: remove when deploying.
     mRealm = Realm.getInstance( Database.getRealmConfiguration() );
     
     // ACTION BAR
@@ -929,7 +950,7 @@ public class MainActivity extends AppCompatActivity
     
     if( mCurrentLocation != null && mKeefree != null ) {
       
-      Log.d( TAG, "Trying to draw route to Keefree from Current Location" );
+      //Log.d( TAG, "Trying to draw route to Keefree from Current Location" );
       
       Routing routing = new Routing.Builder().travelMode( Routing.TravelMode.WALKING )
               .withListener( this )
@@ -1102,6 +1123,21 @@ public class MainActivity extends AppCompatActivity
     return true;
   }
   
+  @OnClick( R.id.buzzerOffImage )
+  public void onBuzzerOffImageClick() {
+  
+    mVibrator.vibrate( VibrationEffect.createOneShot( 50, 100 ) );
+  
+    if( mConnectionState != STATE_CONNECTED && !mIsInitialised && !mIsSecurityOn ) {
+      Utilities.promptSnackbar( this, "Security features are not on..." );
+      return;
+    }
+  
+    promptLoadingDialog( Constants.Status.NORMAL );
+    sendCharacter( Constants.SEND_BUZZER_OFF );
+    
+  }
+  
   private void sendCharacter( String message ) {
     
     BluetoothGattService service = mBluetoothGatt.getService( Constants.BLE_DEVICE_SERVICE_UUID );
@@ -1170,7 +1206,13 @@ public class MainActivity extends AppCompatActivity
         }
         
         // Dismiss loading dialog and prompt time out dialog if reaches here
-        mLoadingDialog.dismiss();
+        runOnUiThread( new Runnable() {
+          @Override
+          public void run() {
+            mLoadingDialog.dismiss();
+          }
+        } );
+        
       
         promptBasicDialog( getString( R.string.timed_out_title),
                 getString( R.string.timed_out_body),
@@ -1264,6 +1306,15 @@ public class MainActivity extends AppCompatActivity
     
   }
   
+  public void showBuzzerOff() {
+    mBuzzerOffImage.setVisibility( View.VISIBLE );
+    mBuzzerOffPrompt.setVisibility( View.VISIBLE );
+  }
+  
+  public void hideBuzzerOff() {
+    mBuzzerOffImage.setVisibility( View.INVISIBLE );
+    mBuzzerOffPrompt.setVisibility( View.INVISIBLE );
+  }
   
   /**
    * INTERFACE METHODS
@@ -1325,9 +1376,10 @@ public class MainActivity extends AppCompatActivity
   @Override
   public void onRoutingFailure( RouteException e ) {
     
-    Log.d( TAG, "Routing drawing failed: exeception - " + e.getMessage() );
     // NOTE: 2,500 request per day is allows or you MUST PAY for more
     // Utilities.promptSnackbar( MainActivity.this, "Error: Cannot draw route. Google Directions API error." );
+    
+    // Log.d( TAG, "Routing drawing failed: exeception - " + e.getMessage() );
     
   }
   

@@ -36,8 +36,7 @@ public class Utilities {
     
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences( context );
     
-    String value = sharedPreferences.getString( context.getString( R.string.pref_key_is_first_time_user ),
-            context.getString( R.string.pref_is_first_time_user_true ) );
+    String value = sharedPreferences.getString( context.getString( R.string.pref_key_is_first_time_user ), context.getString( R.string.pref_is_first_time_user_true ) );
     
     return value;
   }

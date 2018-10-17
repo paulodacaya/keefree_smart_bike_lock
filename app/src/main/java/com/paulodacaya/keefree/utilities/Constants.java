@@ -49,6 +49,9 @@ public class Constants {
   public static final String SEND_SECURITY_OFF = "e";
   public static final String RECEIVED_SECURITY_OFF = "security_off";
   
+  public static final String SEND_BUZZER_OFF = "b";
+  public static final String RECEIVED_BUZZER_OFF = "buzzer_off";
+  
   public static final long LOCATION_REQUEST_INTERVAL = 10000;
   public static final long LOCATION_REQUEST_INTERVAL_FASTEST = 6000;
   public static final LatLng DEFAULT_LOCATION = new LatLng( -37.751514, 144.742874 ); // PAULO's HOUSE .. TODO: remove when deploying
