@@ -5,6 +5,9 @@ This repository details the android mobile application development for the keefr
 # Documentation
 [Clicking this link](https://drive.google.com/drive/folders/1JHVycoRSVm_Yv2PicdAe7AhItHKPcwzJ?usp=sharing) will take you to a public google drive folder where all documentation in association to this project can be found. The following list is whats currently contained in the google drive folder:
 * End of First Semester Report.
+* Completion and Test Plan.
+* End of Year Final Report.
+* KEEFREE Brochure.
 
 ## Authors
 The follow are the members of this project:
