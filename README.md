@@ -9,6 +9,13 @@ This repository details the android mobile application development for the keefr
 * End of Year Final Report.
 * KEEFREE Brochure.
 
+# Application Preview
+| ![43009683_2080279178671031_318909911662592_n](https://user-images.githubusercontent.com/29850088/47421266-f4c9d100-d7cb-11e8-90d6-24189cddddea.png) | ![43085729_303355717145798_3279284638043865088_n](https://user-images.githubusercontent.com/29850088/47421325-10cd7280-d7cc-11e8-958d-3d8003df15f6.png) | ![42996747_474844429687131_8111959406888878080_n](https://user-images.githubusercontent.com/29850088/47421388-35294f00-d7cc-11e8-8b99-77fe43c99629.png) | ![43065949_1178807818924349_6576986387910754304_n](https://user-images.githubusercontent.com/29850088/47421637-be408600-d7cc-11e8-8038-904f5b4b9da3.png) |
+--- | --- | --- | ---
+| Login Screen - Passcode access. | Main control between KEEFREE smart bike lock. Handles unlocking, security, linking, etc. | Activity - Records data when actions have been made. Stores to local database (Realm). | Settings - Can change App access code and Phoneless access code where
+
+### Further details can be found in Google Drive link under 'Documentation'.
+
 ## Authors
 The follow are the members of this project:
 * __Paulo Dacaya__
